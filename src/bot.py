@@ -32,6 +32,7 @@ commands = {
     "menu": "Display this menu",
     "add": "Record/Add a new spending",
     "addRecurring": "Recording/ Adding a new recurring expense",
+    "showRecurringTransactions": "Display all the recurring transactions",
     "display": "Show sum of expenditure for the current day/month",
     "history": "Display spending history",
     "delete": "Clear/Erase all your records",
