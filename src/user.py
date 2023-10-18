@@ -22,7 +22,14 @@ class User:
             "Shopping",
             "Miscellaneous",
         ]
+        self.recurring_categories = [
+            "Rent",
+            "Water",
+            "Electricity",
+            "Loan Bill",
+        ]
         self.spend_display_option = ["Day", "Month"]
+        self.recurringTransactions = []
         self.transactions = {}
         self.edit_transactions = {}
         self.edit_category = {}
@@ -74,6 +81,14 @@ class User:
                     if amount > 0:
                         return amount
         return 0
+
+    def add_recurring_transaction(self, startDate, category, frequency, value, userId):
+        try:
+            self.recurringTransactions.append({"StartDate": startDate, "RecurringCategory": category, "Frequency": frequency, "Value": value})
+            self.save_user(userId)
+        except Exception as e:
+            logger.error(str(e), exc_info=True)
+
 
     def add_transaction(self, date, category, value, userid):
         """
@@ -236,6 +251,18 @@ class User:
                     matched_dates[category].append(record)
         return matched_dates
 
+    def recurring_transactions(self):
+        """
+        Helper function to display all the recurring Transactions to the user.
+
+        :param transaction: dictionary of category, and each value is a dictionary of transactions of that category
+        :return: final_str, which is the transactions stringifies
+        :rtype: string
+        """
+        recurringTransactions = self.recurringTransactions
+        return recurringTransactions
+            
+         
     def display_transaction(self, transaction):
         """
         Helper function to turn the dictionary into a user-readable string

@@ -21,16 +21,17 @@ from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 from email import encoders
 
-sys.path.append("C:/NCSU/Sem 1/SE/Project 3/slashbot/")
+sys.path.append("C:/Users/gvspr/OneDrive/Desktop/NorthCarolinaStateUniversity/CourseWorkEverything/Semester-1/CSC-510 Software Engineering/Project2_WorkingDirectory/spendwise")
 try:
     from src.user import User
 except:
    from user import User
 
-api_token = os.environ["API_TOKEN"]
+api_token = "6568520953:AAFfs8P3IMqhl_tWemytiOcfqalhMaPppcQ"
 commands = {
     "menu": "Display this menu",
     "add": "Record/Add a new spending",
+    "addRecurring": "Recording/ Adding a new recurring expense",
     "display": "Show sum of expenditure for the current day/month",
     "history": "Display spending history",
     "delete": "Clear/Erase all your records",
@@ -71,7 +72,7 @@ def start_and_menu_command(m):
     chat_id = m.chat.id
     print("*********************CHAT ID***************************", chat_id)
     text_intro = (
-        "Welcome to SlashBot - a simple solution to track your expenses! \nHere is a list of available "
+        "Welcome to SpendWise - a simple solution to track your expenses! \nHere is a list of available "
         "commands, please enter a command of your choice so that I can assist you further: \n\n "
     )
     for (
@@ -136,7 +137,6 @@ def post_budget_input(message):
 
     except Exception as ex:
         bot.reply_to(message, "Oh no. " + str(ex))
-
 
 @bot.message_handler(commands=["add"])
 def command_add(message):
@@ -316,6 +316,153 @@ def post_amount_input(message, date_of_entry):
         print("Exception occurred : ")
         logger.error(str(ex), exc_info=True)
         bot.reply_to(message, "Processing Failed - \nError : " + str(ex))
+
+
+@bot.message_handler(commands=["addRecurring"])
+def command_addRecurring(message):
+    """
+    Handles the command 'addRecurring'. Lists the categories from which the user can select. The function
+    'post_recurring_category_selection' is called next. :param message: telebot.types.Message object representing the message object
+
+    :param message: telebot.types.Message object representing the message object
+    :type: object
+    :return: None
+    """
+    chat_id = str(message.chat.id)
+    print(chat_id)
+    option.pop(chat_id, None)
+    if chat_id not in user_list.keys():
+        user_list[chat_id] = User(chat_id)
+    user = user_list[chat_id]
+
+    current_date = datetime.now()
+    formatted_date = current_date.strftime("%Y,%m,%d")
+    bot.send_message(chat_id, "A new Recurring Expense is created on " + formatted_date)
+    start_date = handler_callback(formatted_date, user)
+    print(user_list[chat_id].recurring_categories)
+    recurring_categories = user_list[chat_id].recurring_categories 
+    markup = types.ReplyKeyboardMarkup(one_time_keyboard=True)
+    markup.row_width = 2
+    for c in recurring_categories:
+        markup.add(c)
+    message = bot.send_message(chat_id, "Select the Category", reply_markup=markup)
+    bot.register_next_step_handler(message, post_recurring_category_selection,start_date)
+
+def post_recurring_category_selection(message, start_date):
+    chat_id = str(message.chat.id)
+    option.pop(chat_id, None)
+    try:
+        selected_category = message.text
+        recurring_categories = user_list[chat_id].recurring_categories
+        if selected_category not in recurring_categories:
+            bot.send_message(
+                chat_id, "Invalid", reply_markup=types.ReplyKeyboardRemove()
+            )
+            raise Exception(
+                'Sorry I don\'t recognise this category "{}"!'.format(selected_category)
+            )
+
+        recurring_category = selected_category
+        markup = types.ReplyKeyboardMarkup(one_time_keyboard=True)
+        markup.add("Daily", "Weekly", "Monthly")
+        
+        message = bot.send_message(
+            chat_id,
+            "Select the frequency of the recurring expense:",
+            reply_markup=markup,
+        )
+
+        # Register the next step handler for frequency selection
+        bot.register_next_step_handler(message, post_recurring_frequency_selection, start_date, recurring_category)
+    except Exception as ex:
+        print("Exception occurred : ")
+        logger.error(str(ex), exc_info=True)
+        bot.reply_to(message, "Processing Failed - \nError : " + str(ex))
+
+
+def post_recurring_frequency_selection(message, start_date, recurring_category):
+    chat_id = str(message.chat.id)
+    option.pop(chat_id, None)
+    selected_frequency = message.text
+    message = bot.send_message(chat_id,
+        "How much will you spend on {}? \n(Enter numeric values only)".format(
+            str(recurring_category)
+        ),
+    )
+    bot.register_next_step_handler(message, post_recurring_amount_input, start_date, recurring_category, selected_frequency)
+
+
+def post_recurring_amount_input(message, start_date, recurring_category, selected_frequency):
+    try:
+        chat_id = str(message.chat.id)
+        recurring_amount_entered = message.text
+        recurring_amount_value = user_list[chat_id].validate_entered_amount(
+            recurring_amount_entered
+        )  # validate
+        if recurring_amount_value == 0:  # cannot be $0 spending
+            raise Exception("Recurring spend amount has to be a non-zero number.")
+        if recurring_amount_value < 0: # cannot be negative
+            raise Exception("Recurring Spends cannot be negative, if you want to add negative spendings add as a form of budgets")
+
+        date_str, category_str, amount_str = (
+            start_date.strftime("%m/%d/%Y %H:%M:%S"),
+            str(recurring_category),
+            format(recurring_amount_value, ".2f"),
+        )
+        user_list[chat_id].add_recurring_transaction(
+            start_date, recurring_category, selected_frequency, recurring_amount_value, chat_id
+        )
+        total_value = user_list[chat_id].monthly_total()
+        add_message = "The following recurring expense has been recorded: You have spent ${} for {} on {}".format(
+            amount_str, category_str, date_str
+        )
+
+        if user_list[chat_id].monthly_budget > 0:
+            if total_value > user_list[chat_id].monthly_budget:
+                bot.send_message(
+                    chat_id,
+                    text="*You have gone over the current month budget*",
+                    parse_mode="Markdown",
+                )
+            elif total_value == user_list[chat_id].monthly_budget:
+                bot.send_message(
+                    chat_id,
+                    text="*You have exhausted your current month budget. You can check/download history*",
+                    parse_mode="Markdown",
+                )
+            elif total_value >= 0.8 * user_list[chat_id].monthly_budget:
+                bot.send_message(
+                    chat_id,
+                    text="*You have used 80% of the current month budget.*",
+                    parse_mode="Markdown",
+                )
+        print(start_date, recurring_category, selected_frequency, recurring_amount_value)
+        bot.send_message(chat_id, add_message)
+    except Exception as ex:
+        print("Exception occurred : ")
+        logger.error(str(ex), exc_info=True)
+        bot.reply_to(message, "Processing Failed - \nError : " + str(ex))
+
+@bot.message_handler(commands=["showRecurringTransactions"])
+def show_recurring_transactions(message):
+    chat_id = str(message.chat.id)
+    user = user_list[chat_id]
+    headers = ["Start Date", "Category", "Frequency", "Value"]
+    rows = []
+    recurringTransactions = user.recurring_transactions()
+    for transaction in recurringTransactions:
+        print(transaction)
+        rows.append([transaction["StartDate"], transaction["RecurringCategory"], transaction["Frequency"], transaction["Value"]])
+
+    recurring_transactions_table = tabulate(rows, headers, "simple")
+
+
+    if recurring_transactions_table:
+        # If there are recurring transactions, send them as a message
+        bot.send_message(chat_id, recurring_transactions_table, parse_mode="Markdown")
+    else:
+        # If there are no recurring transactions, send a message indicating that
+        bot.send_message(chat_id, "No recurring transactions found.")
 
 
 @bot.message_handler(commands=["history"])
