@@ -23,13 +23,15 @@ from email.mime.base import MIMEBase
 from email import encoders
 import smtplib, ssl
 
-sys.path.append("C:/Users/gvspr/OneDrive/Desktop/NorthCarolinaStateUniversity/CourseWorkEverything/Semester-1/CSC-510 Software Engineering/Project2_WorkingDirectory/spendwise")
-try:
-    from src.user import User
-except:
-   from user import User
+sys.path.append("C:\Work\spendwise")
+# try:
+#     from src.user import User
+# except:
+   
+from user import User
 
-api_token = "6568520953:AAFfs8P3IMqhl_tWemytiOcfqalhMaPppcQ"
+#api_token = os.environ["API_TOKEN"]
+api_token = "6192644492:AAG2YtZ5AsmOyj5ashOI_Fk3q-Fvmu5feb4"
 commands = {
     "menu": "Display this menu",
     "addRecurring": "Recording/ Adding a new recurring expense",
@@ -793,10 +795,10 @@ def command_budget(message):
         chat_id,
         "Enter an amount to update your monthly savings. \n(Enter numeric values only)",
     )
-    bot.register_next_step_handler(message, post_budget_input)
+    bot.register_next_step_handler(message, post_savings_input)
 
 
-def post_budget_input(message):
+def post_savings_input(message):
     """
     Receives the amount entered by the user and then adds it to the monthly_budget attribute of the user object. An
     error is displayed if the entered amount is zero. Else, a message is shown that the budget has been added. :param
