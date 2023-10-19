@@ -1,4 +1,4 @@
-# :money_with_wings: SlashBot
+# :money_with_wings: SpendWise
 <hr>
 <p align="center">
 <a><img width=500 
@@ -28,9 +28,11 @@ https://youtu.be/NBihyIU13pw
 
 ## About SlashBot
 
-SlashBot is an easy-to-use Telegram Bot that assists you in recording your daily expenses on a local system without any hassle.  
+SpendWise is an easy-to-use Telegram Bot that assists you in recording your daily expenses and also allows you to add recurring expenses and track them without any hassle.
 With simple commands, this bot allows you to:
 - Add/Record a new spending
+- Recording a recurring transaction and check all the recurring transactions
+- Display upcoming bills in the month
 - Show the sum of your expenditure for the current day/month
 - Display your spending history
 - Clear/Erase all your records
