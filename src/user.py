@@ -83,6 +83,21 @@ class User:
         return 0
 
     def add_recurring_transaction(self, startDate, category, frequency, value, userId):
+        """
+        Stores the recurring expense to the file.
+
+        :param date: date string of the transaction
+        :type: string
+        :param category: category of the transaction
+        :type: string
+        :param frequency: frequency of the transaction
+        :type: string
+        :param value: amount of the transaction
+        :type: string
+        :param userid: userid string which is also the file name
+        :type: string
+        :return: None
+        """
         try:
             self.recurringTransactions.append({"StartDate": startDate, "RecurringCategory": category, "Frequency": frequency, "Value": value})
             self.save_user(userId)
