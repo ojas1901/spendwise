@@ -23,13 +23,13 @@ from email.mime.base import MIMEBase
 from email import encoders
 import smtplib, ssl
 
-sys.path.append("C:\Users\manid\spendwise")
+sys.path.append("C:/Users/gvspr/OneDrive/Desktop/NorthCarolinaStateUniversity/CourseWorkEverything/Semester-1/CSC-510 Software Engineering/Project2_WorkingDirectory/spendwise")
 try:
     from src.user import User
 except:
    from user import User
 
-api_token = "6183219704:AAFR5TEZcMixpqpMA9xscN5QbRDIf-Gb92w"
+api_token = "6568520953:AAFfs8P3IMqhl_tWemytiOcfqalhMaPppcQ"
 commands = {
     "menu": "Display this menu",
     "addRecurring": "Recording/ Adding a new recurring expense",
@@ -262,11 +262,10 @@ def post_category_selection(message, date_to_add):
     :type: object
     :return: None
     """
+    chat_id = str(message.chat.id)
     try:
-        chat_id = str(message.chat.id)
         selected_category = message.text
-        user=user_list[chat_id]
-        spend_categories = user.spend_categories
+        spend_categories = user_list[chat_id].spend_categories
         if selected_category not in spend_categories:
             bot.send_message(
                 chat_id, "Invalid", reply_markup=types.ReplyKeyboardRemove()
@@ -275,47 +274,14 @@ def post_category_selection(message, date_to_add):
                 'Sorry I don\'t recognise this category "{}"!'.format(selected_category)
             )
 
-        markup = types.ReplyKeyboardMarkup(one_time_keyboard=True)
-        markup.row_width = 2
-        for c in user.expense_category:
-            markup.add(c)
-        bot.send_message(chat_id, "Select Expense Category", reply_markup=markup)
-        bot.register_next_step_handler(message, post_expense_category_selection,date_to_add, selected_category)
-
-    except Exception as ex:
-        bot.reply_to(message, "Oh no! " + str(ex))
-        display_text = ""
-        for (
-            c
-        ) in (
-            commands
-        ):  # generate help text out of the commands dictionary defined at the top
-            display_text += "/" + c + ": "
-            display_text += commands[c] + "\n"
-        bot.send_message(chat_id, "Please select a menu option from below:")
-        bot.send_message(chat_id, display_text)
-
-def post_expense_category_selection(message,date_to_add,selected_category):
-    try:
-        chat_id = str(message.chat.id)
-        option.pop(chat_id, None)
-        expense_category = message.text
-        user= user_list[chat_id]
-        if expense_category not in user.expense_category:
-            bot.send_message(
-                chat_id, "Invalid", reply_markup=types.ReplyKeyboardRemove()
-            )
-            raise Exception(
-                'Sorry I don\'t recognise this category "{}"!'.format(expense_category)
-            )
-        
+        option[chat_id] = selected_category
         message = bot.send_message(
             chat_id,
             "How much did you spend on {}? \n(Enter numeric values only)".format(
                 str(option[chat_id])
             ),
         )
-        bot.register_next_step_handler(message,date_to_add, post_amount_input, expense_category,)
+        bot.register_next_step_handler(message, post_amount_input, date_to_add)
     except Exception as ex:
         bot.reply_to(message, "Oh no! " + str(ex))
         display_text = ""
@@ -328,8 +294,6 @@ def post_expense_category_selection(message,date_to_add,selected_category):
             display_text += commands[c] + "\n"
         bot.send_message(chat_id, "Please select a menu option from below:")
         bot.send_message(chat_id, display_text)
-
-
 
 
 def post_amount_input(message, date_of_entry):
@@ -348,8 +312,76 @@ def post_amount_input(message, date_of_entry):
         amount_value = user_list[chat_id].validate_entered_amount(
             amount_entered
         )  # validate
+        markup = types.ReplyKeyboardMarkup(one_time_keyboard=True)
+        expense_category = ["Personal", "Shared"]
+        for c in expense_category:
+            markup.add(c)
+        bot.send_message(chat_id, "Select whether it's individual or group expense", reply_markup=markup)
+        bot.register_next_step_handler(message, post_expense_category_selection, date_of_entry, amount_value)
+    except Exception as ex:
+        print("Exception occurred : ")
+        logger.error(str(ex), exc_info=True)
+        bot.reply_to(message, "Processing Failed - \nError : " + str(ex))
+
+
+def post_expense_category_selection(message, date_of_entry, amount_value):
+        try:
+            chat_id = str(message.chat.id)
+            expense_category = message.text
+            amount_value = amount_value
+            if amount_value == 0:  # cannot be $0 spending
+                raise Exception("Spent amount has to be a non-zero number.")
+            if expense_category == "Personal":
+                date_str, category_str, amount_str = (
+                    date_of_entry.strftime("%m/%d/%Y %H:%M:%S"),
+                    str(option[chat_id]),
+                    format(amount_value, ".2f"),
+                )
+                user_list[chat_id].add_transaction(
+                    date_of_entry, option[chat_id], amount_value, chat_id
+                )
+                total_value = user_list[chat_id].monthly_total()
+                add_message = "The following expenditure has been recorded: You have spent ${} for {} on {}".format(
+                    amount_str, category_str, date_str
+                )
+
+                if user_list[chat_id].monthly_budget > 0:
+                    if total_value > user_list[chat_id].monthly_budget:
+                        bot.send_message(
+                            chat_id,
+                            text="*You have gone over the monthly budget*",
+                            parse_mode="Markdown",
+                        )
+                    elif total_value == user_list[chat_id].monthly_budget:
+                        bot.send_message(
+                            chat_id,
+                            text="*You have exhausted your monthly budget. You can check/download history*",
+                            parse_mode="Markdown",
+                        )
+                    elif total_value >= 0.8 * user_list[chat_id].monthly_budget:
+                        bot.send_message(
+                            chat_id,
+                            text="*You have used 80% of the monthly budget.*",
+                            parse_mode="Markdown",
+                        )
+                bot.send_message(chat_id, add_message)
+            elif expense_category == "Shared":
+                bot.send_message(chat_id, "Enter the number of people involved")
+                bot.register_next_step_handler(message, post_members_entry, date_of_entry, amount_value)
+            else:
+                bot.send_message("Invalid Category!")
+        except Exception as ex:
+            print("Exception occurred : ")
+            logger.error(str(ex), exc_info=True)
+            bot.reply_to(message, "Processing Failed - \nError : " + str(ex))
+
+def post_members_entry(message, date_of_entry, amount_value):
+    try:
+        chat_id = str(message.chat.id)
+        members_involved = int(message.text)
+        amount_value = amount_value/members_involved
         if amount_value == 0:  # cannot be $0 spending
-            raise Exception("Spent amount has to be a non-zero number.")
+                raise Exception("Spent amount has to be a non-zero number.")
 
         date_str, category_str, amount_str = (
             date_of_entry.strftime("%m/%d/%Y %H:%M:%S"),
@@ -388,6 +420,7 @@ def post_amount_input(message, date_of_entry):
 
 
         bot.send_message(chat_id, add_message)
+
     except Exception as ex:
         print("Exception occurred : ")
         logger.error(str(ex), exc_info=True)
