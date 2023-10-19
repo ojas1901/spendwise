@@ -21,13 +21,13 @@ from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 from email import encoders
 
-sys.path.append("C:/Users/gvspr/OneDrive/Desktop/NorthCarolinaStateUniversity/CourseWorkEverything/Semester-1/CSC-510 Software Engineering/Project2_WorkingDirectory/spendwise")
+sys.path.append("C:\Users\manid\spendwise")
 try:
     from src.user import User
 except:
    from user import User
 
-api_token = "6568520953:AAFfs8P3IMqhl_tWemytiOcfqalhMaPppcQ"
+api_token = "6183219704:AAFR5TEZcMixpqpMA9xscN5QbRDIf-Gb92w"
 commands = {
     "menu": "Display this menu",
     "addRecurring": "Recording/ Adding a new recurring expense",
@@ -228,10 +228,11 @@ def post_category_selection(message, date_to_add):
     :type: object
     :return: None
     """
-    chat_id = str(message.chat.id)
     try:
+        chat_id = str(message.chat.id)
         selected_category = message.text
-        spend_categories = user_list[chat_id].spend_categories
+        user=user_list[chat_id]
+        spend_categories = user.spend_categories
         if selected_category not in spend_categories:
             bot.send_message(
                 chat_id, "Invalid", reply_markup=types.ReplyKeyboardRemove()
@@ -240,14 +241,13 @@ def post_category_selection(message, date_to_add):
                 'Sorry I don\'t recognise this category "{}"!'.format(selected_category)
             )
 
-        option[chat_id] = selected_category
-        message = bot.send_message(
-            chat_id,
-            "How much did you spend on {}? \n(Enter numeric values only)".format(
-                str(option[chat_id])
-            ),
-        )
-        bot.register_next_step_handler(message, post_amount_input, date_to_add)
+        markup = types.ReplyKeyboardMarkup(one_time_keyboard=True)
+        markup.row_width = 2
+        for c in user.expense_category:
+            markup.add(c)
+        bot.send_message(chat_id, "Select Expense Category", reply_markup=markup)
+        bot.register_next_step_handler(message, post_expense_category_selection,date_to_add, selected_category)
+
     except Exception as ex:
         bot.reply_to(message, "Oh no! " + str(ex))
         display_text = ""
@@ -260,6 +260,42 @@ def post_category_selection(message, date_to_add):
             display_text += commands[c] + "\n"
         bot.send_message(chat_id, "Please select a menu option from below:")
         bot.send_message(chat_id, display_text)
+
+def post_expense_category_selection(message,date_to_add,selected_category):
+    try:
+        chat_id = str(message.chat.id)
+        option.pop(chat_id, None)
+        expense_category = message.text
+        user= user_list[chat_id]
+        if expense_category not in user.expense_category:
+            bot.send_message(
+                chat_id, "Invalid", reply_markup=types.ReplyKeyboardRemove()
+            )
+            raise Exception(
+                'Sorry I don\'t recognise this category "{}"!'.format(expense_category)
+            )
+        
+        message = bot.send_message(
+            chat_id,
+            "How much did you spend on {}? \n(Enter numeric values only)".format(
+                str(option[chat_id])
+            ),
+        )
+        bot.register_next_step_handler(message,date_to_add, post_amount_input, expense_category,)
+    except Exception as ex:
+        bot.reply_to(message, "Oh no! " + str(ex))
+        display_text = ""
+        for (
+            c
+        ) in (
+            commands
+        ):  # generate help text out of the commands dictionary defined at the top
+            display_text += "/" + c + ": "
+            display_text += commands[c] + "\n"
+        bot.send_message(chat_id, "Please select a menu option from below:")
+        bot.send_message(chat_id, display_text)
+
+
 
 
 def post_amount_input(message, date_of_entry):
