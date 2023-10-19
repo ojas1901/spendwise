@@ -347,7 +347,7 @@ def command_addRecurring(message):
     markup.row_width = 2
     for c in recurring_categories:
         markup.add(c)
-    message = bot.send_message(chat_id, "Select the Category", reply_markup=markup)
+    message = bot.send_message(chat_id, "Select the Category or Enter a new Custom Category", reply_markup=markup)
     bot.register_next_step_handler(message, post_recurring_category_selection,start_date)
 
 def post_recurring_category_selection(message, start_date):
@@ -355,15 +355,6 @@ def post_recurring_category_selection(message, start_date):
     option.pop(chat_id, None)
     try:
         selected_category = message.text
-        recurring_categories = user_list[chat_id].recurring_categories
-        if selected_category not in recurring_categories:
-            bot.send_message(
-                chat_id, "Invalid", reply_markup=types.ReplyKeyboardRemove()
-            )
-            raise Exception(
-                'Sorry I don\'t recognise this category "{}"!'.format(selected_category)
-            )
-
         recurring_category = selected_category
         markup = types.ReplyKeyboardMarkup(one_time_keyboard=True)
         markup.add("Daily", "Weekly", "Monthly")
@@ -373,7 +364,6 @@ def post_recurring_category_selection(message, start_date):
             "Select the frequency of the recurring expense:",
             reply_markup=markup,
         )
-
         # Register the next step handler for frequency selection
         bot.register_next_step_handler(message, post_recurring_frequency_selection, start_date, recurring_category)
     except Exception as ex:
@@ -423,7 +413,7 @@ def post_recurring_amount_input(message, start_date, recurring_category, selecte
             if total_value > user_list[chat_id].monthly_budget:
                 bot.send_message(
                     chat_id,
-                    text="*You have gone over the current month budget*",
+                    text="*You have gone over the current month's budget*",
                     parse_mode="Markdown",
                 )
             elif total_value == user_list[chat_id].monthly_budget:
@@ -454,7 +444,7 @@ def show_recurring_transactions(message):
     recurringTransactions = user.recurring_transactions()
     for transaction in recurringTransactions:
         print(transaction)
-        rows.append([transaction["StartDate"], transaction["RecurringCategory"], transaction["Frequency"], transaction["Value"]])
+        rows.append([transaction["StartDate"].strftime("%Y-%m-%d"), transaction["RecurringCategory"], transaction["Frequency"], transaction["Value"]])
 
     recurring_transactions_table = tabulate(rows, headers, "simple")
 
@@ -531,6 +521,7 @@ def show_history(message):
     """
     try:
         chat_id = str(message.chat.id)
+        user = user_list[chat_id]
         spend_total_str = ""
         count = 0
         table = [["Category", "Date", "Amount in $", "Amount in Rs."]]
@@ -545,6 +536,24 @@ def show_history(message):
                     date = transaction["Date"].strftime("%m/%d/%y")
                     value = format(transaction["Value"], ".2f")
                     table.append([date, category, "$ " + value])
+            recurringTransactions = user.recurring_transactions()
+            for transaction in recurringTransactions:
+                start_date = transaction["StartDate"]
+                frequency = transaction["Frequency"]
+                value = transaction["Value"]
+                category = transaction["RecurringCategory"]
+                current_date = datetime.now()
+                next_date = current_date
+                if next_date >= start_date:
+                    next_date = start_date
+                    while next_date <= current_date:
+                        count = count + 1
+                        date = next_date.strftime("%m/%d/%y")
+                        value = format(transaction["Value"],".2f")
+                        table.append([date, category, "$ " + value]) 
+                        next_date = calculate_next_date(next_date, frequency)
+
+
             if count == 0:
                 raise Exception("Sorry! No spending records found!")
             spend_total_str="<pre>"+ tabulate(table, headers='firstrow')+"</pre>"
@@ -796,11 +805,17 @@ def display_total(message):
             for transaction in recurringTransactions:
                 start_date = transaction["StartDate"]
                 frequency = transaction["Frequency"]
+
                 value = transaction["Value"]
                 if start_date <= query:
                     next_date = start_date
                     while next_date <= query:
                         if next_date.strftime("%m")  == query.strftime("%m") and next_date.strftime("%d")  == query.strftime("%d"):
+                            query_result += "Category {} Date {} Value {:.2f} \n".format(
+                            transaction["RecurringCategory"],
+                            next_date.strftime(dateFormat),
+                            transaction["Value"],
+                            )
                             total_value += value
                         # Calculate the next occurrence date based on the current date and frequency
                         next_date = calculate_next_date(next_date, frequency)
@@ -834,6 +849,12 @@ def display_total(message):
                     next_date = start_date
                     while next_date <= query:
                         if next_date.strftime("%m")  == query.strftime("%m"):
+                            if next_date.strftime("%m")  == query.strftime("%m") and next_date.strftime("%d")  == query.strftime("%d"):
+                                query_result += "Category {} Date {} Value {:.2f} \n".format(
+                                transaction["RecurringCategory"],
+                                next_date.strftime(dateFormat),
+                                transaction["Value"],
+                                )
                             total_value += value
                         # Calculate the next occurrence date based on the current date and frequency
                         next_date = calculate_next_date(next_date, frequency)
