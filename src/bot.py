@@ -319,6 +319,40 @@ def post_amount_input(message, date_of_entry):
         logger.error(str(ex), exc_info=True)
         bot.reply_to(message, "Processing Failed - \nError : " + str(ex))
 
+# @bot.message_handler(content_types=["addTransactionsFromCSV"])
+# def handle_document(message):
+#     # Download the document
+#     downloaded_file = bot.download_file(message.document.file_id)
+    
+#     # Save the downloaded file locally (optional)
+#     with open(message.document.file_name, 'wb') as file:
+#         file.write(downloaded_file)
+
+#     # Handle the uploaded file (e.g., add transactions from the file)
+#     add_transactions_from_file(message)
+#     # Respond to the user to confirm the file has been processed
+#     bot.reply_to(message, "Transactions added successfully.")
+
+# def add_transactions_from_file(message):
+#     file_path = message.document.file_name
+#     parsed_transactions = parse_transaction_file(file_path)
+#     user = user_list[message.chat.id]
+#     for transaction in parsed_transactions:
+#         date = transaction["Date"]
+#         category = transaction["Category"]
+#         value = transaction["Value"]
+#         user.add_transaction(date, category, value, message.chat.id)
+
+# def parse_transaction_file(file_path):
+#     transactions = []
+#     with open(file_path, 'r') as file:
+#         reader = csv.DictReader(file)
+#         for row in reader:
+#             date = row['Date']
+#             category = row['Category']
+#             value = row['Value']
+#             transactions.append({"Date": date, "Category": category, "Value": value})
+#     return transactions
 
 @bot.message_handler(commands=["addRecurring"])
 def command_addRecurring(message):
@@ -503,8 +537,8 @@ def show_recurring_transactions(message):
         # If there are no recurring transactions, send a message indicating that
         bot.send_message(chat_id, "No recurring transactions found.")
 
-@bot.message_handler(commands = ["displayUpcomingTransactions"])
-def display_upcoming_recurring_transactions(message):
+@bot.message_handler(commands=["displayUpcomingTransactions"])
+def display_upcoming_transactions(message):
     """
      Display the list of Upcoming Transactions for the current month - Bills Due for Payment
 
@@ -513,6 +547,9 @@ def display_upcoming_recurring_transactions(message):
     :return: None
     """
     chat_id = str(message.chat.id)
+    option.pop(chat_id, None)
+    if chat_id not in user_list.keys():
+        user_list[chat_id] = User(chat_id)
     user = user_list[chat_id]
     upcoming_transactions = []
     recurringTransactions = user.recurring_transactions()
@@ -522,11 +559,11 @@ def display_upcoming_recurring_transactions(message):
         value = transaction["Value"]
         category = transaction["RecurringCategory"]
         current_date = datetime.now()
-        future_date = datetime(2023,12,31)
+        last_day_of_month = current_date.replace(day=1, month=current_date.month % 12 + 1) - timedelta(days=1)
         # Calculate upcoming transactions
         next_date = current_date
         if next_date >= start_date:
-            while next_date <= future_date:
+            while next_date <= last_day_of_month:
                 upcoming_transactions.append({
                     "DateOfTransaction": next_date,
                     "Category": category,
