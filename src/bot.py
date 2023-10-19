@@ -21,13 +21,13 @@ from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 from email import encoders
 
-sys.path.append("C:/Users/gvspr/OneDrive/Desktop/NorthCarolinaStateUniversity/CourseWorkEverything/Semester-1/CSC-510 Software Engineering/Project2_WorkingDirectory/spendwise")
+sys.path.append("C:\Users\manid\Desktop\SE_Project\spendwise")
 try:
     from src.user import User
 except:
    from user import User
 
-api_token = "6568520953:AAFfs8P3IMqhl_tWemytiOcfqalhMaPppcQ"
+api_token = "6183219704:AAFR5TEZcMixpqpMA9xscN5QbRDIf-Gb92w"
 commands = {
     "menu": "Display this menu",
     "addRecurring": "Recording/ Adding a new recurring expense",
