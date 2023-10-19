@@ -51,6 +51,7 @@ commands = {
     "displayDifferentCurrency": "Display the sum of expenditures for the current day/month in another currency",
     "sendEmail":"Send an email with an attachment showing your history",
     "addSavingsGoal": "Record your target spending",
+    "register": "Add your details",
 }
 
 
