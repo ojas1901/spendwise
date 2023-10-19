@@ -4,7 +4,7 @@ Tests add command
 import time
 import unittest
 import sys
-sys.path.append(r"C:\Users\manid\Desktop\SE_Project\spendwise")
+sys.path.append(r"C:\\Users\\manid\\Desktop\\SE_Project\\spendwise")
 print(sys.path)
 from src import bot
 from bot_utils import BotTest
