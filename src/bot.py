@@ -579,7 +579,7 @@ def display_upcoming_transactions(message):
     for transaction in upcoming_transactions]
     message = bot.send_message(chat_id, "The List of upcoming Transactions")
     # Define the table headers
-    headers = ["Billing_Date", "Purpose", "Amount"]
+    headers = ["Next Due Date", "Purpose", "Amount in $"]
     # Format the table
     table = tabulate(table_data, headers, tablefmt="simple")
     bot.reply_to(message, table)
