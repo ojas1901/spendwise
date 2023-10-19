@@ -1,17 +1,17 @@
 |Column 1 (Software Sustainability Evaluation + Notes)   |Column 2(Score)   |Evidence |
 | :-------- | :-------- | :-------- |
-|Does your website and documentation provide a clear, high-level overview of your software? |  |  |
-|Does your website and documentation clearly describe the type of user who should use your software? |  |  |
+|Does your website and documentation provide a clear, high-level overview of your software? | Y |  |
+|Does your website and documentation clearly describe the type of user who should use your software? | Y |  |
 |Do you publish case studies to show how your software has been used by yourself and others? |  |  |
-|Is the name of your project/software unique? |  |  |
-|Is your project/software name free from trademark violations? |  |  |
-|Is your software available as a package that can be deployed without building it?  |  |  |
-|Is your software available for free? |  |  |
-|Is your source code publicly available to download, either as a downloadable bundle or via access to a source code repository? |  |  |
-|Is your software hosted in an established, third-party repository likeGitHub (https://github.com), BitBucket (https://bitbucket.org),LaunchPad (https://launchpad.net) orSourceForge (https://sourceforge.net)?  |  |  |
-|Is your documentation clearly available on your website or within your software?  |  |  |
-|Does your documentation include a "quick start" guide, that provides a short overview of how to use your software with some basic examples of use? |  |  |
-|If you provide more extensive documentation, does this provide clear, step-by-step instructions on how to deploy and use your software? |  |  |
+|Is the name of your project/software unique? | Y |  |
+|Is your project/software name free from trademark violations? | Y |  |
+|Is your software available as a package that can be deployed without building it?  | Y |  |
+|Is your software available for free? | Y |  |
+|Is your source code publicly available to download, either as a downloadable bundle or via access to a source code repository? | Y |  |
+|Is your software hosted in an established, third-party repository likeGitHub (https://github.com), BitBucket (https://bitbucket.org),LaunchPad (https://launchpad.net) orSourceForge (https://sourceforge.net)?  | Y |  |
+|Is your documentation clearly available on your website or within your software?  | Y |  |
+|Does your documentation include a "quick start" guide, that provides a short overview of how to use your software with some basic examples of use? | Y |  |
+|If you provide more extensive documentation, does this provide clear, step-by-step instructions on how to deploy and use your software? | Y |  |
 |Do you provide a comprehensive guide to all your software’s commands, functions and options?  |  |  |
 |Do you provide troubleshooting information that describes the symptoms and step-by-step solutions for problems and error messages?  |  |  |
 |If your software can be used as a library, package or service by other software, do you provide comprehensive API documentation? |  |  |

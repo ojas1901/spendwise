@@ -291,7 +291,18 @@ def post_amount_input(message, date_of_entry):
 
 
 def post_expense_category_selection(message, date_of_entry, amount_value):
-        try:
+    """
+    Receives the expense type entered by the user and then Checks if it is Personal or Shared expense. 
+    If it is a personal expense then the expense is added to the total_value.
+    If it is a shared expense it will ask for the number of users
+
+    :param date_of_entry: user entered date
+    :param amount_value: user entered amount value
+    :param message: telebot.types.Message object representing the message object
+    :type: object
+    :return: None
+    """
+    try:
             chat_id = str(message.chat.id)
             expense_category = message.text
             amount_value = amount_value
@@ -336,12 +347,22 @@ def post_expense_category_selection(message, date_of_entry, amount_value):
                 bot.register_next_step_handler(message, post_members_entry, date_of_entry, amount_value)
             else:
                 bot.send_message("Invalid Category!")
-        except Exception as ex:
+    except Exception as ex:
             print("Exception occurred : ")
             logger.error(str(ex), exc_info=True)
             bot.reply_to(message, "Processing Failed - \nError : " + str(ex))
 
 def post_members_entry(message, date_of_entry, amount_value):
+    """
+    Receives the input number of people involved in the shared expense entered by the user and then divides with the amount_value. 
+    This amount value now adds to the total value.
+
+    :param date_of_entry: user entered date
+    :param amount_value: user entered amount value
+    :param message: telebot.types.Message object representing the message object
+    :type: object
+    :return: None
+    """
     try:
         chat_id = str(message.chat.id)
         members_involved = int(message.text)
