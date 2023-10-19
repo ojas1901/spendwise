@@ -351,6 +351,16 @@ def command_addRecurring(message):
     bot.register_next_step_handler(message, post_recurring_category_selection,start_date)
 
 def post_recurring_category_selection(message, start_date):
+    """
+    Receives the category selected by the user and then asks for the frequency of the transaction. If an invalid category is given,
+    an error message is displayed followed by command list. IF the category given is valid, 'post_recurring_frequency_selection' is
+    called next.
+
+    :param message: telebot.types.Message object representing the message object
+    :param start_date: Datetime object representing the start date of the transaction
+    :type: object
+    :return: None
+    """
     chat_id = str(message.chat.id)
     option.pop(chat_id, None)
     try:
@@ -367,12 +377,30 @@ def post_recurring_category_selection(message, start_date):
         # Register the next step handler for frequency selection
         bot.register_next_step_handler(message, post_recurring_frequency_selection, start_date, recurring_category)
     except Exception as ex:
-        print("Exception occurred : ")
-        logger.error(str(ex), exc_info=True)
-        bot.reply_to(message, "Processing Failed - \nError : " + str(ex))
+        bot.reply_to(message, "Oh no! " + str(ex))
+        display_text = ""
+        for (
+            c
+        ) in (
+            commands
+        ):  # generate help text out of the commands dictionary defined at the top
+            display_text += "/" + c + ": "
+            display_text += commands[c] + "\n"
+        bot.send_message(chat_id, "Please select a menu option from below:")
+        bot.send_message(chat_id, display_text)
 
 
 def post_recurring_frequency_selection(message, start_date, recurring_category):
+    """
+    Receives the frequency selected by the user and then asks for the amount spend. IF the category given is valid, 'post_recurring_amount_input' is
+    called next.
+
+    :param message: telebot.types.Message object representing the message object
+    :param start_date: Datetime object representing the start date of the transaction
+    :recurring_category: String representing the category of the recurring expense
+    :type: object
+    :return: None
+    """
     chat_id = str(message.chat.id)
     option.pop(chat_id, None)
     selected_frequency = message.text
@@ -385,6 +413,18 @@ def post_recurring_frequency_selection(message, start_date, recurring_category):
 
 
 def post_recurring_amount_input(message, start_date, recurring_category, selected_frequency):
+    """
+    Receives the amount entered by the user and then adds it to the monthly_total attribute of the user object. An
+    error is displayed if the entered amount is zero or negative. Else, a message is shown that the budget has been added. :param
+    message: telebot.types.Message object representing the message object.
+
+    :param message: telebot.types.Message object representing the message object
+    :param start_date: Datetime object representing the start date of the transaction
+    :recurring_category: String representing the category of the recurring expense
+    :selected_frequency: String representing the frequency of the transaction
+    :type: object
+    :return: None
+    """
     try:
         chat_id = str(message.chat.id)
         recurring_amount_entered = message.text
@@ -437,6 +477,13 @@ def post_recurring_amount_input(message, start_date, recurring_category, selecte
 
 @bot.message_handler(commands=["showRecurringTransactions"])
 def show_recurring_transactions(message):
+    """
+     Display the list of Recurring Transactions present in the User Object
+
+    :param message: telebot.types.Message object representing the message object
+    :type: object
+    :return: None
+    """
     chat_id = str(message.chat.id)
     user = user_list[chat_id]
     headers = ["Start Date", "Category", "Frequency", "Value"]
@@ -458,6 +505,13 @@ def show_recurring_transactions(message):
 
 @bot.message_handler(commands = ["displayUpcomingTransactions"])
 def display_upcoming_recurring_transactions(message):
+    """
+     Display the list of Upcoming Transactions for the current month - Bills Due for Payment
+
+    :param message: telebot.types.Message object representing the message object
+    :type: object
+    :return: None
+    """
     chat_id = str(message.chat.id)
     user = user_list[chat_id]
     upcoming_transactions = []
