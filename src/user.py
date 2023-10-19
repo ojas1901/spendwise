@@ -323,7 +323,34 @@ class User:
             for transaction in self.transactions[category]:
                 if transaction["Date"].strftime("%m") == date.strftime("%m"):
                     total_value += transaction["Value"]
+        for transaction in self.recurringTransactions:
+            start_date = transaction["StartDate"]
+            frequency = transaction["Frequency"]
+            value = transaction["Value"]
+            if start_date <= date:
+                next_date = start_date
+                while next_date <= date:
+                    if next_date.strftime("%m") == date.strftime("%m"):
+                        total_value += value
+                    # Calculate the next occurrence date based on the current date and frequency
+                    next_date = self.calculate_next_date(next_date, frequency)
         return total_value
+    
+    def calculate_next_date(self, current_date, frequency):
+        # Define a mapping of frequencies to timedelta intervals
+        frequency_intervals = {
+            "Daily": timedelta(days=1),
+            "Weekly": timedelta(weeks=1),
+            "Monthly": timedelta(days=30),  # A rough approximation for a month
+        }
+
+        # Check if the frequency is valid
+        if frequency in frequency_intervals:
+            interval = frequency_intervals[frequency]
+            next_date = current_date + interval
+            return next_date
+        else:
+            raise ValueError("Invalid frequency")
 
     def read_budget_csv(self, file, userid):
         """

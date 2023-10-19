@@ -762,17 +762,20 @@ def display_total(message):
     :type: object
     :return: None
     """
+    chat_id = str(message.chat.id)
+    user = user_list[chat_id]
     dateFormat = "%m/%d/%Y"
     try:
         chat_id = str(message.chat.id)
         day_week_month = message.text
+        recurringTransactions = user.recurring_transactions()
 
         if day_week_month not in user_list[chat_id].spend_display_option:
             raise Exception(
                 'Sorry I can\'t show spendings for "{}"!'.format(day_week_month)
             )
 
-        if len(user_list[chat_id].transactions) == 0:
+        if len(user_list[chat_id].transactions) == 0 and len(recurringTransactions) == 0:
             raise Exception("Oops! Looks like you do not have any spending records!")
 
         bot.send_message(chat_id, "Hold on! Calculating...")
@@ -790,6 +793,18 @@ def display_total(message):
                             transaction["Value"],
                         )
                         total_value += transaction["Value"]
+            for transaction in recurringTransactions:
+                start_date = transaction["StartDate"]
+                frequency = transaction["Frequency"]
+                value = transaction["Value"]
+                if start_date <= query:
+                    next_date = start_date
+                    while next_date <= query:
+                        if next_date.strftime("%m")  == query.strftime("%m") and next_date.strftime("%d")  == query.strftime("%d"):
+                            total_value += value
+                        # Calculate the next occurrence date based on the current date and frequency
+                        next_date = calculate_next_date(next_date, frequency)
+
             total_spendings = "Here are your total spendings for the date {} \n".format(
                 datetime.today().strftime("%m/%d/%Y")
             )
@@ -811,6 +826,17 @@ def display_total(message):
                             transaction["Value"],
                         )
                         total_value += transaction["Value"]
+            for transaction in recurringTransactions:
+                start_date = transaction["StartDate"]
+                frequency = transaction["Frequency"]
+                value = transaction["Value"]
+                if start_date <= query:
+                    next_date = start_date
+                    while next_date <= query:
+                        if next_date.strftime("%m")  == query.strftime("%m"):
+                            total_value += value
+                        # Calculate the next occurrence date based on the current date and frequency
+                        next_date = calculate_next_date(next_date, frequency)
             total_spendings = (
                 "Here are your total spendings for the Month {} \n".format(
                     datetime.today().strftime("%B")
