@@ -360,12 +360,13 @@ def post_expense_category_selection(message, date_of_entry, amount_value):
                             text="*You have exhausted your monthly budget. You can check/download history*",
                             parse_mode="Markdown",
                         )
-                    elif total_value >= 0.8 * user_list[chat_id].monthly_budget:
+                    elif total_value > user_list[chat_id].monthly_budget-user_list[chat_id].monthly_savings:
                         bot.send_message(
-                            chat_id,
-                            text="*You have used 80% of the monthly budget.*",
-                            parse_mode="Markdown",
+                        chat_id,
+                        text="*You have used your savings too!.*",
+                        parse_mode="Markdown",
                         )
+                        sendMail()
                 bot.send_message(chat_id, add_message)
             elif expense_category == "Shared":
                 bot.send_message(chat_id, "Enter the number of people involved")

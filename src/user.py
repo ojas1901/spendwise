@@ -470,7 +470,19 @@ class User:
         plt.savefig("data/{}_bar_chart.png".format(userid)) # Ensure that the file name is unique
         charts.append("data/{}_bar_chart.png".format(userid)) # Ensure that the file name is unique
 
-        # Add more visualizations here. Maintain the above format while adding more visualizations. 
+        monthly_budgets= [250, 280, 220]
+        monthly_budgets.append(self.monthly_budget)
+        monthly_totals= [250, 280, 220]
+        monthly_totals.append(self.monthly_total())
+        plt.clf()
+        plt.switch_backend("Agg")
+        plt.title("Your Budget Report")
+        plt.bar(monthly_budgets, monthly_totals)
+        plt.xlabel('Budget')
+        plt.ylabel('Expenditure')
+        plt.title("Your Budget Report")
+        plt.savefig("data/{}_bar_chart1.png".format(userid)) # Ensure that the file name is unique
+        charts.append("data/{}_bar_chart1.png".format(userid)) # Ensure that the file name is unique 
 
         return charts
 
