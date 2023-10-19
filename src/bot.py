@@ -10,7 +10,7 @@ import re
 import time
 import csv
 import io
-from datetime import datetime
+from datetime import datetime, timedelta
 from tabulate import tabulate
 import sys
 import telebot
@@ -21,15 +21,18 @@ from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 from email import encoders
 
-sys.path.append("C:/NCSU/Sem 1/SE/Project 3/slashbot/")
+sys.path.append("C:\Users\manid\spendwise")
 try:
     from src.user import User
 except:
    from user import User
 
-api_token = os.environ["API_TOKEN"]
+api_token = "6183219704:AAFR5TEZcMixpqpMA9xscN5QbRDIf-Gb92w"
 commands = {
     "menu": "Display this menu",
+    "addRecurring": "Recording/ Adding a new recurring expense",
+    "showRecurringTransactions": "Display all the recurring transactions",
+    "displayUpcomingTransactions": "Display upcoming transactions",
     "add": "Record/Add a new spending",
     "display": "Show sum of expenditure for the current day/month",
     "history": "Display spending history",
@@ -71,7 +74,7 @@ def start_and_menu_command(m):
     chat_id = m.chat.id
     print("*********************CHAT ID***************************", chat_id)
     text_intro = (
-        "Welcome to SlashBot - a simple solution to track your expenses! \nHere is a list of available "
+        "Welcome to SpendWise - a simple solution to track your expenses! \nHere is a list of available "
         "commands, please enter a command of your choice so that I can assist you further: \n\n "
     )
     for (
@@ -136,7 +139,6 @@ def post_budget_input(message):
 
     except Exception as ex:
         bot.reply_to(message, "Oh no. " + str(ex))
-
 
 @bot.message_handler(commands=["add"])
 def command_add(message):
@@ -226,10 +228,11 @@ def post_category_selection(message, date_to_add):
     :type: object
     :return: None
     """
-    chat_id = str(message.chat.id)
     try:
+        chat_id = str(message.chat.id)
         selected_category = message.text
-        spend_categories = user_list[chat_id].spend_categories
+        user=user_list[chat_id]
+        spend_categories = user.spend_categories
         if selected_category not in spend_categories:
             bot.send_message(
                 chat_id, "Invalid", reply_markup=types.ReplyKeyboardRemove()
@@ -238,14 +241,13 @@ def post_category_selection(message, date_to_add):
                 'Sorry I don\'t recognise this category "{}"!'.format(selected_category)
             )
 
-        option[chat_id] = selected_category
-        message = bot.send_message(
-            chat_id,
-            "How much did you spend on {}? \n(Enter numeric values only)".format(
-                str(option[chat_id])
-            ),
-        )
-        bot.register_next_step_handler(message, post_amount_input, date_to_add)
+        markup = types.ReplyKeyboardMarkup(one_time_keyboard=True)
+        markup.row_width = 2
+        for c in user.expense_category:
+            markup.add(c)
+        bot.send_message(chat_id, "Select Expense Category", reply_markup=markup)
+        bot.register_next_step_handler(message, post_expense_category_selection,date_to_add, selected_category)
+
     except Exception as ex:
         bot.reply_to(message, "Oh no! " + str(ex))
         display_text = ""
@@ -258,6 +260,42 @@ def post_category_selection(message, date_to_add):
             display_text += commands[c] + "\n"
         bot.send_message(chat_id, "Please select a menu option from below:")
         bot.send_message(chat_id, display_text)
+
+def post_expense_category_selection(message,date_to_add,selected_category):
+    try:
+        chat_id = str(message.chat.id)
+        option.pop(chat_id, None)
+        expense_category = message.text
+        user= user_list[chat_id]
+        if expense_category not in user.expense_category:
+            bot.send_message(
+                chat_id, "Invalid", reply_markup=types.ReplyKeyboardRemove()
+            )
+            raise Exception(
+                'Sorry I don\'t recognise this category "{}"!'.format(expense_category)
+            )
+        
+        message = bot.send_message(
+            chat_id,
+            "How much did you spend on {}? \n(Enter numeric values only)".format(
+                str(option[chat_id])
+            ),
+        )
+        bot.register_next_step_handler(message,date_to_add, post_amount_input, expense_category,)
+    except Exception as ex:
+        bot.reply_to(message, "Oh no! " + str(ex))
+        display_text = ""
+        for (
+            c
+        ) in (
+            commands
+        ):  # generate help text out of the commands dictionary defined at the top
+            display_text += "/" + c + ": "
+            display_text += commands[c] + "\n"
+        bot.send_message(chat_id, "Please select a menu option from below:")
+        bot.send_message(chat_id, display_text)
+
+
 
 
 def post_amount_input(message, date_of_entry):
@@ -317,6 +355,287 @@ def post_amount_input(message, date_of_entry):
         logger.error(str(ex), exc_info=True)
         bot.reply_to(message, "Processing Failed - \nError : " + str(ex))
 
+# @bot.message_handler(content_types=["addTransactionsFromCSV"])
+# def handle_document(message):
+#     # Download the document
+#     downloaded_file = bot.download_file(message.document.file_id)
+    
+#     # Save the downloaded file locally (optional)
+#     with open(message.document.file_name, 'wb') as file:
+#         file.write(downloaded_file)
+
+#     # Handle the uploaded file (e.g., add transactions from the file)
+#     add_transactions_from_file(message)
+#     # Respond to the user to confirm the file has been processed
+#     bot.reply_to(message, "Transactions added successfully.")
+
+# def add_transactions_from_file(message):
+#     file_path = message.document.file_name
+#     parsed_transactions = parse_transaction_file(file_path)
+#     user = user_list[message.chat.id]
+#     for transaction in parsed_transactions:
+#         date = transaction["Date"]
+#         category = transaction["Category"]
+#         value = transaction["Value"]
+#         user.add_transaction(date, category, value, message.chat.id)
+
+# def parse_transaction_file(file_path):
+#     transactions = []
+#     with open(file_path, 'r') as file:
+#         reader = csv.DictReader(file)
+#         for row in reader:
+#             date = row['Date']
+#             category = row['Category']
+#             value = row['Value']
+#             transactions.append({"Date": date, "Category": category, "Value": value})
+#     return transactions
+
+@bot.message_handler(commands=["addRecurring"])
+def command_addRecurring(message):
+    """
+    Handles the command 'addRecurring'. Lists the categories from which the user can select. The function
+    'post_recurring_category_selection' is called next. :param message: telebot.types.Message object representing the message object
+
+    :param message: telebot.types.Message object representing the message object
+    :type: object
+    :return: None
+    """
+    chat_id = str(message.chat.id)
+    print(chat_id)
+    option.pop(chat_id, None)
+    if chat_id not in user_list.keys():
+        user_list[chat_id] = User(chat_id)
+    user = user_list[chat_id]
+
+    current_date = datetime.now()
+    formatted_date = current_date.strftime("%Y,%m,%d")
+    bot.send_message(chat_id, "A new Recurring Expense is created on " + formatted_date)
+    start_date = handler_callback(formatted_date, user)
+    print(user_list[chat_id].recurring_categories)
+    recurring_categories = user_list[chat_id].recurring_categories 
+    markup = types.ReplyKeyboardMarkup(one_time_keyboard=True)
+    markup.row_width = 2
+    for c in recurring_categories:
+        markup.add(c)
+    message = bot.send_message(chat_id, "Select the Category or Enter a new Custom Category", reply_markup=markup)
+    bot.register_next_step_handler(message, post_recurring_category_selection,start_date)
+
+def post_recurring_category_selection(message, start_date):
+    """
+    Receives the category selected by the user and then asks for the frequency of the transaction. If an invalid category is given,
+    an error message is displayed followed by command list. IF the category given is valid, 'post_recurring_frequency_selection' is
+    called next.
+
+    :param message: telebot.types.Message object representing the message object
+    :param start_date: Datetime object representing the start date of the transaction
+    :type: object
+    :return: None
+    """
+    chat_id = str(message.chat.id)
+    option.pop(chat_id, None)
+    try:
+        selected_category = message.text
+        recurring_category = selected_category
+        markup = types.ReplyKeyboardMarkup(one_time_keyboard=True)
+        markup.add("Daily", "Weekly", "Monthly")
+        
+        message = bot.send_message(
+            chat_id,
+            "Select the frequency of the recurring expense:",
+            reply_markup=markup,
+        )
+        # Register the next step handler for frequency selection
+        bot.register_next_step_handler(message, post_recurring_frequency_selection, start_date, recurring_category)
+    except Exception as ex:
+        bot.reply_to(message, "Oh no! " + str(ex))
+        display_text = ""
+        for (
+            c
+        ) in (
+            commands
+        ):  # generate help text out of the commands dictionary defined at the top
+            display_text += "/" + c + ": "
+            display_text += commands[c] + "\n"
+        bot.send_message(chat_id, "Please select a menu option from below:")
+        bot.send_message(chat_id, display_text)
+
+
+def post_recurring_frequency_selection(message, start_date, recurring_category):
+    """
+    Receives the frequency selected by the user and then asks for the amount spend. IF the category given is valid, 'post_recurring_amount_input' is
+    called next.
+
+    :param message: telebot.types.Message object representing the message object
+    :param start_date: Datetime object representing the start date of the transaction
+    :recurring_category: String representing the category of the recurring expense
+    :type: object
+    :return: None
+    """
+    chat_id = str(message.chat.id)
+    option.pop(chat_id, None)
+    selected_frequency = message.text
+    message = bot.send_message(chat_id,
+        "How much will you spend on {}? \n(Enter numeric values only)".format(
+            str(recurring_category)
+        ),
+    )
+    bot.register_next_step_handler(message, post_recurring_amount_input, start_date, recurring_category, selected_frequency)
+
+
+def post_recurring_amount_input(message, start_date, recurring_category, selected_frequency):
+    """
+    Receives the amount entered by the user and then adds it to the monthly_total attribute of the user object. An
+    error is displayed if the entered amount is zero or negative. Else, a message is shown that the budget has been added. :param
+    message: telebot.types.Message object representing the message object.
+
+    :param message: telebot.types.Message object representing the message object
+    :param start_date: Datetime object representing the start date of the transaction
+    :recurring_category: String representing the category of the recurring expense
+    :selected_frequency: String representing the frequency of the transaction
+    :type: object
+    :return: None
+    """
+    try:
+        chat_id = str(message.chat.id)
+        recurring_amount_entered = message.text
+        recurring_amount_value = user_list[chat_id].validate_entered_amount(
+            recurring_amount_entered
+        )  # validate
+        if recurring_amount_value == 0:  # cannot be $0 spending
+            raise Exception("Recurring spend amount has to be a non-zero number.")
+        if recurring_amount_value < 0: # cannot be negative
+            raise Exception("Recurring Spends cannot be negative, if you want to add negative spendings add as a form of budgets")
+
+        date_str, category_str, amount_str = (
+            start_date.strftime("%m/%d/%Y %H:%M:%S"),
+            str(recurring_category),
+            format(recurring_amount_value, ".2f"),
+        )
+        user_list[chat_id].add_recurring_transaction(
+            start_date, recurring_category, selected_frequency, recurring_amount_value, chat_id
+        )
+        total_value = user_list[chat_id].monthly_total()
+        add_message = "The following recurring expense has been recorded: You have spent ${} for {} on {}".format(
+            amount_str, category_str, date_str
+        )
+
+        if user_list[chat_id].monthly_budget > 0:
+            if total_value > user_list[chat_id].monthly_budget:
+                bot.send_message(
+                    chat_id,
+                    text="*You have gone over the current month's budget*",
+                    parse_mode="Markdown",
+                )
+            elif total_value == user_list[chat_id].monthly_budget:
+                bot.send_message(
+                    chat_id,
+                    text="*You have exhausted your current month budget. You can check/download history*",
+                    parse_mode="Markdown",
+                )
+            elif total_value >= 0.8 * user_list[chat_id].monthly_budget:
+                bot.send_message(
+                    chat_id,
+                    text="*You have used 80% of the current month budget.*",
+                    parse_mode="Markdown",
+                )
+        print(start_date, recurring_category, selected_frequency, recurring_amount_value)
+        bot.send_message(chat_id, add_message)
+    except Exception as ex:
+        print("Exception occurred : ")
+        logger.error(str(ex), exc_info=True)
+        bot.reply_to(message, "Processing Failed - \nError : " + str(ex))
+
+@bot.message_handler(commands=["showRecurringTransactions"])
+def show_recurring_transactions(message):
+    """
+     Display the list of Recurring Transactions present in the User Object
+
+    :param message: telebot.types.Message object representing the message object
+    :type: object
+    :return: None
+    """
+    chat_id = str(message.chat.id)
+    user = user_list[chat_id]
+    headers = ["Start Date", "Category", "Frequency", "Value"]
+    rows = []
+    recurringTransactions = user.recurring_transactions()
+    for transaction in recurringTransactions:
+        print(transaction)
+        rows.append([transaction["StartDate"].strftime("%Y-%m-%d"), transaction["RecurringCategory"], transaction["Frequency"], transaction["Value"]])
+
+    recurring_transactions_table = tabulate(rows, headers, "simple")
+
+
+    if recurring_transactions_table:
+        # If there are recurring transactions, send them as a message
+        bot.send_message(chat_id, recurring_transactions_table, parse_mode="Markdown")
+    else:
+        # If there are no recurring transactions, send a message indicating that
+        bot.send_message(chat_id, "No recurring transactions found.")
+
+@bot.message_handler(commands=["displayUpcomingTransactions"])
+def display_upcoming_transactions(message):
+    """
+     Display the list of Upcoming Transactions for the current month - Bills Due for Payment
+
+    :param message: telebot.types.Message object representing the message object
+    :type: object
+    :return: None
+    """
+    chat_id = str(message.chat.id)
+    option.pop(chat_id, None)
+    if chat_id not in user_list.keys():
+        user_list[chat_id] = User(chat_id)
+    user = user_list[chat_id]
+    upcoming_transactions = []
+    recurringTransactions = user.recurring_transactions()
+    for transaction in recurringTransactions:
+        start_date = transaction["StartDate"]
+        frequency = transaction["Frequency"]
+        value = transaction["Value"]
+        category = transaction["RecurringCategory"]
+        current_date = datetime.now()
+        last_day_of_month = current_date.replace(day=1, month=current_date.month % 12 + 1) - timedelta(days=1)
+        # Calculate upcoming transactions
+        next_date = current_date
+        if next_date >= start_date:
+            while next_date <= last_day_of_month:
+                upcoming_transactions.append({
+                    "DateOfTransaction": next_date,
+                    "Category": category,
+                    "Value": value,
+                })
+                next_date = calculate_next_date(next_date, frequency)
+
+    # Sort upcoming transactions by date
+    upcoming_transactions.sort(key=lambda x: x["DateOfTransaction"])
+    print(upcoming_transactions)
+    table_data = [
+    [transaction["DateOfTransaction"].strftime("%Y-%m-%d"), transaction["Category"], transaction["Value"]]
+    for transaction in upcoming_transactions]
+    message = bot.send_message(chat_id, "The List of upcoming Transactions")
+    # Define the table headers
+    headers = ["Next Due Date", "Purpose", "Amount in $"]
+    # Format the table
+    table = tabulate(table_data, headers, tablefmt="simple")
+    bot.reply_to(message, table)
+
+def calculate_next_date(current_date, frequency):
+        # Define a mapping of frequencies to timedelta intervals
+        frequency_intervals = {
+            "Daily": timedelta(days=1),
+            "Weekly": timedelta(weeks=1),
+            "Monthly": timedelta(days=30),  # A rough approximation for a month
+        }
+
+        # Check if the frequency is valid
+        if frequency in frequency_intervals:
+            interval = frequency_intervals[frequency]
+            next_date = current_date + interval
+            return next_date
+        else:
+            raise ValueError("Invalid frequency")
+
 
 @bot.message_handler(commands=["history"])
 def show_history(message):
@@ -329,6 +648,7 @@ def show_history(message):
     """
     try:
         chat_id = str(message.chat.id)
+        user = user_list[chat_id]
         spend_total_str = ""
         count = 0
         table = [["Category", "Date", "Amount in $", "Amount in Rs."]]
@@ -343,6 +663,24 @@ def show_history(message):
                     date = transaction["Date"].strftime("%m/%d/%y")
                     value = format(transaction["Value"], ".2f")
                     table.append([date, category, "$ " + value])
+            recurringTransactions = user.recurring_transactions()
+            for transaction in recurringTransactions:
+                start_date = transaction["StartDate"]
+                frequency = transaction["Frequency"]
+                value = transaction["Value"]
+                category = transaction["RecurringCategory"]
+                current_date = datetime.now()
+                next_date = current_date
+                if next_date >= start_date:
+                    next_date = start_date
+                    while next_date <= current_date:
+                        count = count + 1
+                        date = next_date.strftime("%m/%d/%y")
+                        value = format(transaction["Value"],".2f")
+                        table.append([date, category, "$ " + value]) 
+                        next_date = calculate_next_date(next_date, frequency)
+
+
             if count == 0:
                 raise Exception("Sorry! No spending records found!")
             spend_total_str="<pre>"+ tabulate(table, headers='firstrow')+"</pre>"
@@ -560,17 +898,20 @@ def display_total(message):
     :type: object
     :return: None
     """
+    chat_id = str(message.chat.id)
+    user = user_list[chat_id]
     dateFormat = "%m/%d/%Y"
     try:
         chat_id = str(message.chat.id)
         day_week_month = message.text
+        recurringTransactions = user.recurring_transactions()
 
         if day_week_month not in user_list[chat_id].spend_display_option:
             raise Exception(
                 'Sorry I can\'t show spendings for "{}"!'.format(day_week_month)
             )
 
-        if len(user_list[chat_id].transactions) == 0:
+        if len(user_list[chat_id].transactions) == 0 and len(recurringTransactions) == 0:
             raise Exception("Oops! Looks like you do not have any spending records!")
 
         bot.send_message(chat_id, "Hold on! Calculating...")
@@ -588,6 +929,24 @@ def display_total(message):
                             transaction["Value"],
                         )
                         total_value += transaction["Value"]
+            for transaction in recurringTransactions:
+                start_date = transaction["StartDate"]
+                frequency = transaction["Frequency"]
+
+                value = transaction["Value"]
+                if start_date <= query:
+                    next_date = start_date
+                    while next_date <= query:
+                        if next_date.strftime("%m")  == query.strftime("%m") and next_date.strftime("%d")  == query.strftime("%d"):
+                            query_result += "Category {} Date {} Value {:.2f} \n".format(
+                            transaction["RecurringCategory"],
+                            next_date.strftime(dateFormat),
+                            transaction["Value"],
+                            )
+                            total_value += value
+                        # Calculate the next occurrence date based on the current date and frequency
+                        next_date = calculate_next_date(next_date, frequency)
+
             total_spendings = "Here are your total spendings for the date {} \n".format(
                 datetime.today().strftime("%m/%d/%Y")
             )
@@ -609,6 +968,23 @@ def display_total(message):
                             transaction["Value"],
                         )
                         total_value += transaction["Value"]
+            for transaction in recurringTransactions:
+                start_date = transaction["StartDate"]
+                frequency = transaction["Frequency"]
+                value = transaction["Value"]
+                if start_date <= query:
+                    next_date = start_date
+                    while next_date <= query:
+                        if next_date.strftime("%m")  == query.strftime("%m"):
+                            if next_date.strftime("%m")  == query.strftime("%m") and next_date.strftime("%d")  == query.strftime("%d"):
+                                query_result += "Category {} Date {} Value {:.2f} \n".format(
+                                transaction["RecurringCategory"],
+                                next_date.strftime(dateFormat),
+                                transaction["Value"],
+                                )
+                            total_value += value
+                        # Calculate the next occurrence date based on the current date and frequency
+                        next_date = calculate_next_date(next_date, frequency)
             total_spendings = (
                 "Here are your total spendings for the Month {} \n".format(
                     datetime.today().strftime("%B")
