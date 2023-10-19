@@ -10,7 +10,7 @@ import re
 import time
 import csv
 import io
-from datetime import datetime
+from datetime import datetime, timedelta
 from tabulate import tabulate
 import sys
 import telebot
@@ -30,9 +30,10 @@ except:
 api_token = "6568520953:AAFfs8P3IMqhl_tWemytiOcfqalhMaPppcQ"
 commands = {
     "menu": "Display this menu",
-    "add": "Record/Add a new spending",
     "addRecurring": "Recording/ Adding a new recurring expense",
     "showRecurringTransactions": "Display all the recurring transactions",
+    "displayUpcomingTransactions": "Display upcoming transactions",
+    "add": "Record/Add a new spending",
     "display": "Show sum of expenditure for the current day/month",
     "history": "Display spending history",
     "delete": "Clear/Erase all your records",
@@ -464,6 +465,59 @@ def show_recurring_transactions(message):
     else:
         # If there are no recurring transactions, send a message indicating that
         bot.send_message(chat_id, "No recurring transactions found.")
+
+@bot.message_handler(commands = ["displayUpcomingTransactions"])
+def display_upcoming_recurring_transactions(message):
+    chat_id = str(message.chat.id)
+    user = user_list[chat_id]
+    upcoming_transactions = []
+    recurringTransactions = user.recurring_transactions()
+    for transaction in recurringTransactions:
+        start_date = transaction["StartDate"]
+        frequency = transaction["Frequency"]
+        value = transaction["Value"]
+        category = transaction["RecurringCategory"]
+        current_date = datetime.now()
+        future_date = datetime(2023,12,31)
+        # Calculate upcoming transactions
+        next_date = current_date
+        if next_date >= start_date:
+            while next_date <= future_date:
+                upcoming_transactions.append({
+                    "DateOfTransaction": next_date,
+                    "Category": category,
+                    "Value": value,
+                })
+                next_date = calculate_next_date(next_date, frequency)
+
+    # Sort upcoming transactions by date
+    upcoming_transactions.sort(key=lambda x: x["DateOfTransaction"])
+    print(upcoming_transactions)
+    table_data = [
+    [transaction["DateOfTransaction"].strftime("%Y-%m-%d"), transaction["Category"], transaction["Value"]]
+    for transaction in upcoming_transactions]
+    message = bot.send_message(chat_id, "The List of upcoming Transactions")
+    # Define the table headers
+    headers = ["Billing_Date", "Purpose", "Amount"]
+    # Format the table
+    table = tabulate(table_data, headers, tablefmt="simple")
+    bot.reply_to(message, table)
+
+def calculate_next_date(current_date, frequency):
+        # Define a mapping of frequencies to timedelta intervals
+        frequency_intervals = {
+            "Daily": timedelta(days=1),
+            "Weekly": timedelta(weeks=1),
+            "Monthly": timedelta(days=30),  # A rough approximation for a month
+        }
+
+        # Check if the frequency is valid
+        if frequency in frequency_intervals:
+            interval = frequency_intervals[frequency]
+            next_date = current_date + interval
+            return next_date
+        else:
+            raise ValueError("Invalid frequency")
 
 
 @bot.message_handler(commands=["history"])
