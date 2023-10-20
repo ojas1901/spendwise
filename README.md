@@ -9,24 +9,24 @@
 <hr>
 
 ![MIT license](https://img.shields.io/badge/License-MIT-green.svg)
-![GitHub](https://img.shields.io/github/languages/top/secheaper/slashbot?color=red&label=Python&logo=Python&logoColor=yellow)
-![GitHub contributors](https://img.shields.io/github/contributors/secheaper/slashbot)
+![GitHub](https://img.shields.io/github/languages/top/nitin-dhevar/spendwise?color=red&label=Python&logo=Python&logoColor=yellow)
+![GitHub contributors](https://img.shields.io/github/contributors/nitin-dhevar/spendwise)
 [![DOI](https://zenodo.org/badge/431190543.svg)](https://zenodo.org/badge/latestdoi/431190543)
 [![Platform](https://img.shields.io/badge/Platform-Telegram-blue)](https://desktop.telegram.org/)
-[![codecov](https://codecov.io/gh/secheaper/slashbot/branch/main/graph/badge.svg?token=YCKWZTHO7O)](https://codecov.io/gh/secheaper/slashbot)
+[![codecov](https://codecov.io/gh/nitin-dhevar/spendwise/branch/main/graph/badge.svg?token=YCKWZTHO7O)](https://codecov.io/gh/nitin-dhevar/spendwise)
 [![Actions Status](https://github.com/mtkumar123/MyDollarBot/workflows/CI/badge.svg)](https://github.com/mtkumar123/MyDollarBot/actions)
 ![github workflow](https://github.com/mtkumar123/MyDollarBot/actions/workflows/black.yml/badge.svg)
 ![Discord](https://img.shields.io/discord/879343473940107264?color=blueviolet&label=Discord%20Discussion%20Chat)
-![Lines of code](https://img.shields.io/tokei/lines/github/secheaper/slashbot?color=9cf)
-![Version](https://img.shields.io/github/v/release/secheaper/slashbot?color=ff69b4&label=Version)
-![GitHub issues](https://img.shields.io/github/issues-raw/secheaper/slashbot)
-![GitHub closed issues](https://img.shields.io/github/issues-closed-raw/secheaper/slashbot)
+![Lines of code](https://img.shields.io/tokei/lines/github/nitin-dhevar/spendwise?color=9cf)
+![Version](https://img.shields.io/github/v/release/nitin-dhevar/spendwise?color=ff69b4&label=Version)
+![GitHub issues](https://img.shields.io/github/issues-raw/nitin-dhevar/spendwise)
+![GitHub closed issues](https://img.shields.io/github/issues-closed-raw/nitin-dhevar/spendwise)
 
 <hr>
 
 ## Demo Video
 
-https://youtu.be/NBihyIU13pw
+https://youtu.be/cAGcWJTWelc
 
 ## About Spendwise
 
@@ -40,7 +40,6 @@ With simple commands, this bot allows you to:
 - Real time currency conversion
 - Personalised user info
 - Monthly budget chart
-
 - Show the sum of your expenditure for the current day/month
 - Display your spending history
 - Clear/Erase all your records
@@ -62,7 +61,7 @@ Sample demos are shown below. They are run on a local machine.
 
 # :star: Whats New
 
-### Release Version 2.0 - Spendwise
+### Release Version 2.0.0 - Spendwise
 
 - Add your total daily/monthly expenditure according to expense category (Personal or Shared)
 - Add/Record recurring transactions (e.g. Rent, Utilities etc.)
@@ -82,7 +81,7 @@ Sample demos are shown below. They are run on a local machine.
 # :rocket: Installation Guide
 
 ## 💻For users 
-Check out the bot here: https://t.me/ExpenseTrack_bot
+Check out the bot here: https://t.me/spend_vise_bot
 
 ## 💻For developers 
 1. Install Python, atleast Python3
@@ -139,7 +138,7 @@ I want to increase/decrease my monthly budget.
 
 ### Add
 
-I just spent money and want to mark it as a transaction! 
+I want to add the expenses based on personal or shared category
 
 <p align="center"><img width="700" src="./docs/workflows/add.gif"></p>
 
@@ -147,52 +146,43 @@ I just spent money and want to mark it as a transaction!
 2. Click on the date of the transaction
 3. Click on the category to add
 4. Type in the amount spent
+5. Type the expenditure category "Personal" or "Shared"
+6. The amount will be added to the total value
 
-### Delete
+### Add Recurring
 
-Oh no! I entered a transaction but want to delete it! 
+I want to add the repetitive transactions
 
-<p align="center"><img width="700" src="./docs/workflows/delete.gif"></p>
+<p align="center"><img width="700" src="./docs/workflows/add_recurring.gif"></p>
 
-1. Enter the `/delete` command
-2. Based on how many records you want to delete..
-   1. Per day: enter the day to delete
-   2. Per month: enter the month to delete
-   3. All: enter All
-3. The records will be display. Enter YES to confirm, or NO to cancel
+1. Enter the `/addRecurring` command
+2. Click the category
+3. Click the frequency
 
-### Edit
+### Display Recurring Transactions
 
-Oh no! I entered a transaction but entered the wrong category! 
+I want to see the recurring transactions
 
-<p align="center"><img width="700" src="./docs/workflows/edit.gif"></p>
+<p align="center"><img width="700" src="./docs/workflows/recurring.gif"></p>
 
-1. Enter the `/edit` command
-2. Specify the date, category, and value of the transaction
-3. Specify what part of the transaction to edit (either date, category, or value)
-4. Enter in a new value
+1. Enter the `/showRecurringTransactions` command
 
-### Adding transactions from CSV and displaying chart
+### Show upcoming transactions
 
-I want to add transactions from a CSV my bank gave me, and visalize my spendings
+I want to see the transactions which are upcoming
 
-<p align="center"><img width="700" src="./docs/workflows/csv_vis.gif"></p>
+<p align="center"><img width="700" src="./docs/workflows/upcoming.gif"></p>
 
 
-1. Drag the .csv file into the telegram chat, and press send
-2. For each transaction, classify the category
-   1. The application will remember these mappings
-3. Enter the `/chart` command
+1. click '/displayUpcomingTransactions'
 
-### Download History
+### Jokes
 
-I want a CSV file of all my transactions.
+I am tired I want to listen to some jokes
 
-<p align="center"><img width="700" src="./docs/workflows/download.gif"></p>
+<p align="center"><img width="700" src="./docs/workflows/joke.gif"></p>
 
-1. Make sure you have a transaction history.
-2. Enter the `/download` command.
-3. A CSV file will be sent with your history.
+1. Enter '/joke' command
 
 ### See total Expenditure in different currencies
 
@@ -206,27 +196,15 @@ I want to convert my total daily or monthly expenditure in a different currency.
 4. You will get the converted price in that currency
 
 
-### Visualization in the form of graphs
-
-I want to see my spendings in the form of graphs
-
-<p align="center"><img width="700" src="./docs/workflows/multipleVisualizations.gif"></p>
-
-1. Make sure you have a transaction history.
-2. Enter the `/chart` command.
-3. You will see multiple visualizations for your spending 
-
 ### SendEmail 
 
-I want to send myself an email for the monthly expenditure
+I want to send myself an email for the savings record
 
 
 <p align="center"><img width="700" src="./docs/workflows/email.gif"></p>
 
-1. Make sure you have a transaction history.
-2. Enter the `/sendEmail` command.
-3. Type the intended email address
-4. You will get an email with the history file as attachment
+1. Make sure you add savings using '/addSavingsGoal' command
+2. When you are exhausted your limit it will send you an email
 
 # :grey_question: Documentation
 
@@ -235,7 +213,7 @@ Thorough documentation of all methods and classes can be found at [Github Pages]
 # :construction: Road Map
 
 Our ideas for new features that can be implemented to make this project better can be seen in our RoadMap project board.
-[Road Map](https://github.com/secheaper/slashbot/projects/1)
+[Road Map](https://github.com/nitin-dhevar/spendwise/projects/1)
 
 
 
@@ -246,7 +224,7 @@ We would like to thank Dr. Timothy Menzies for helping us understand the process
 
 :page_facing_up: License
 ---
-This project is licensed under the terms of the MIT license. Please check [License](https://github.com/secheaper/slashbot/blob/main/LICENSE) for more details.
+This project is licensed under the terms of the MIT license. Please check [License](https://github.com/nitin-dhevar/spendwise/blob/main/LICENSE) for more details.
 
 
 :sparkles: Contributors
@@ -254,11 +232,9 @@ This project is licensed under the terms of the MIT license. Please check [Licen
 
 <table>
   <tr>
-    <td align="center"><a href="http://www.shubhammankar.com/"><img src="https://avatars.githubusercontent.com/u/29366125?v=4" width="75px;" alt=""/><br /><sub><b>Shubham Mankar</b></sub></a></td>
-    <td align="center"><a href="https://github.com/pratikdevnani"><img src="https://avatars.githubusercontent.com/u/43350493?v=4" width="75px;" alt=""/><br /><sub><b>Pratik Devnani</b></sub></a><br /></td>
-    <td align="center"><a href="https://github.com/moksh98"><img src="https://avatars.githubusercontent.com/u/29693765?v=4" width="75px;" alt=""/><br /><sub><b>Moksh Jain</b></sub></a><br /></td>
-    <td align="center"><a href="https://rahilsarvaiya.tech/"><img src="https://avatars0.githubusercontent.com/u/32304956?v=4" width="75px;" alt=""/><br /><sub><b>Rahil Sarvaiya</b></sub></a><br /></td>
-    <td align="center"><a href="https://github.com/annie0467"><img src="https://avatars.githubusercontent.com/u/17164255?v=4" width="75px;" alt=""/><br /><sub><b>Anushi Keswani</b></sub></a><br /></td>
+    <td align="center"><a href="https://github.com/nitin-dhevar/"><img src="https://avatars.githubusercontent.com/u/46418326?v=4" width="75px;" alt=""/><br /><sub><b>Nitin Dhevar</b></sub></a></td>
+    <td align="center"><a href="https://github.com/GVSPraveen113"><img src="https://avatars.githubusercontent.com/u/49156298?v=4" width="75px;" alt=""/><br /><sub><b>Venkata Sai Praveen</b></sub></a><br /></td>
+    <td align="center"><a href="https://github.com/manideepika21"><img src="https://avatars.githubusercontent.com/u/145089468?s=96&v=4" width="75px;" alt=""/><br /><sub><b>Mani Deepika</b></sub></a><br /></td>
   </tr>
 </table>
 
