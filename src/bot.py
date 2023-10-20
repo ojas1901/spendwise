@@ -122,7 +122,34 @@ DOLLARS_TO_RUPEES = 83.21
 DOLLARS_TO_EUROS = 0.94
 DOLLARS_TO_SWISS_FRANC = 0.89
   
+@bot.message_handler(commands=["register"])
+def command_register(message):
+    """
+    Handles the commands 'register'. Gets input for user details and stores it.
 
+    :param message: telebot.types.Message object representing the message object
+    :type: object
+    :return: None
+    """
+    chat_id = str(message.chat.id)
+    option.pop(chat_id, None)
+    if chat_id not in user_list.keys():
+        user_list[chat_id] = User(chat_id)
+    message = bot.send_message(
+        chat_id,
+        "Enter your name",
+    )
+    user_list[chat_id].add_user_name(message.text, chat_id)
+    print(user_list[chat_id].name)
+    # message = bot.reply_to(
+    #     chat_id,
+    #     "Enter your email",
+    # )
+    # user_list[chat_id].add_user_email(message.text, chat_id)
+    # bot.reply_to(
+    #         chat_id,
+    #         "Details saved successfully"
+    #     )
 
 @bot.message_handler(commands=["budget"])
 def command_budget(message):
