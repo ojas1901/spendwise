@@ -30,15 +30,15 @@ https://youtu.be/cAGcWJTWelc
 
 ## About Spendwise
 
-Spendwise is an easy-to-use Telegram Bot that assists you in recording your daily expenses on a local system without any hassle.  
+Spendwise is an easy-to-use Telegram Bot that assists you in recording your daily expenses on a local system without any hassle.  With SpendWise, users can easily record and categorize their spending, set budgets, visualize expenditure patterns, and more, all within the familiar Telegram interface.
 With simple commands, this bot allows you to:
 - Add/Record a new spending based on personal or shared expense actegory
 - Add/Record recurring transactions
 - Display recurring transactions
 - Display upcoming transactions
-- Savings alert using e-mail notification
-- Real time currency conversion
-- Personalised user info
+- Provide Email Alerts when monthly expenses exceeds the savings goal or budget
+- Real time currency conversion using public APIs
+- Personalised user information stored
 - Monthly budget chart
 - Show the sum of your expenditure for the current day/month
 - Display your spending history
@@ -208,7 +208,7 @@ I want to send myself an email for the savings record
 
 # :grey_question: Documentation
 
-Thorough documentation of all methods and classes can be found at [Github Pages](https://mtkumar123.github.io/MyDollarBot/)
+The Documentation of the SpendWise application API, the Agile Project Board Status can be viewed at [Link to Documentation](https://github.com/nitindhevar/spendwise/blob/main/proj2/Documentation%20SpendWise.pdf) and ![Agile Project Board Status](https://github.com/nitin-dhevar/spendwise/blob/main/proj2/AgileProjectBoardStatus.jpeg). For additional reference, refer to [Github Pages](https://mtkumar123.github.io/MyDollarBot/).
 
 # :construction: Road Map
 
