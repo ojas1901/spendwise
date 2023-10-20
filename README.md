@@ -47,7 +47,7 @@ With simple commands, this bot allows you to:
 - Email the history CSV file to yourself
 - See the total daily/monthly expenditure in different currencies
 
-Check out the bot here: https://t.me/ExpenseTrack_bot
+Check out the bot here: https://t.me/spend_vise_bot
 
 ---
 Sample demos are shown below. They are run on a local machine.
