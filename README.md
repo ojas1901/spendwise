@@ -1,8 +1,10 @@
-# :money_with_wings: SpendWise
+
+# :money_with_wings: Spendwise
+
 <hr>
 <p align="center">
 <a><img width=500 
-  src="/docs/workflows/banner.jpg" alt="Expense tracking made easy!"></a>
+  src="/docs/workflows/banner.jpg" alt="Empower Your Finances with SpendWise: Your Smart Money Manager"></a>
 </p>
 <hr>
 
@@ -26,13 +28,19 @@
 
 https://youtu.be/NBihyIU13pw
 
-## About SlashBot
+## About Spendwise
 
-SpendWise is an easy-to-use Telegram Bot that assists you in recording your daily expenses and also allows you to add recurring expenses and track them without any hassle.
+Spendwise is an easy-to-use Telegram Bot that assists you in recording your daily expenses on a local system without any hassle.  
 With simple commands, this bot allows you to:
-- Add/Record a new spending
-- Recording a recurring transaction and check all the recurring transactions
-- Display upcoming bills in the month
+- Add/Record a new spending based on personal or shared expense actegory
+- Add/Record recurring transactions
+- Display recurring transactions
+- Display upcoming transactions
+- Savings alert using e-mail notification
+- Real time currency conversion
+- Personalised user info
+- Monthly budget chart
+
 - Show the sum of your expenditure for the current day/month
 - Display your spending history
 - Clear/Erase all your records
@@ -42,7 +50,7 @@ With simple commands, this bot allows you to:
 - Email the history CSV file to yourself
 - See the total daily/monthly expenditure in different currencies
 
-Check out the bot here: https://t.me/ncsuBot
+Check out the bot here: https://t.me/spend_vise_bot
 
 ---
 Sample demos are shown below. They are run on a local machine.
@@ -54,23 +62,15 @@ Sample demos are shown below. They are run on a local machine.
 
 # :star: Whats New
 
-### Release Version 1.2.1
+### Release Version 2.0 - Spendwise
 
-- See your total daily/monthly expenditure in differet currencies using the /displayDifferentCurrency command
-- Download your spendings history CSV file using the /download command
-- Email the monthly spendings history to yourself using the /sendEmail command
-- User can now get a message when the monthly budget is exhausted.
-- Details for testing requirements added in README.md
-
-
-### Release Version 1.2.0
-
-- Visualize your spendings in the form of graphs
-- The User can now see his expenses across various categories in the form of graphs along with pie charts.
-- Just go on adding multiple spendings using /add and type /chart to see the spendings in the form of graphs.
-- More Badges added in Repository
-
-
+- Add your total daily/monthly expenditure according to expense category (Personal or Shared)
+- Add/Record recurring transactions (e.g. Rent, Utilities etc.)
+- Display recurring transactions when asked
+- Display upcoming transactions
+- Send an email notification for depicting savings information
+- Currency conversion in real time scenarios
+- Making user information personalized like mail_id, name
 
 
 <!-- [comment]: <> (## Demo) -->
@@ -80,6 +80,9 @@ Sample demos are shown below. They are run on a local machine.
 
 
 # :rocket: Installation Guide
+
+## 💻For users 
+Check out the bot here: https://t.me/ExpenseTrack_bot
 
 ## 💻For developers 
 1. Install Python, atleast Python3
@@ -238,7 +241,7 @@ Our ideas for new features that can be implemented to make this project better c
 
 :heart: Acknowledgements
 ---
-We would like to thank Dr. Timothy Menzies for helping us understand the process of building a good Software Engineering project. We would also like to thank the teaching assistants Xiao Ling, Andre Lustosa, Kewen Peng, Weichen Shi for their support throughout the project.
+We would like to thank Dr. Timothy Menzies for helping us understand the process of building a good Software Engineering project. We would also like to thank the teaching assistants Andre Lustosa, San Gilson, Xueqi (Sherry) Yang, Yasitha Rajapaksha, Rahul Yedida for their support throughout the project.
 
 
 :page_facing_up: License
@@ -263,4 +266,4 @@ This project is licensed under the terms of the MIT license. Please check [Licen
 
 # :calling: Support
 
-For any support, email us at mydollarbot@gmail.com/ secheaper@gmail.com
+For any support, email us at spendwisebot@gmail.com / mydollarbot@gmail.com / secheaper@gmail.com
