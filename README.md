@@ -63,13 +63,17 @@ Sample demos are shown below. They are run on a local machine.
 
 ### Release Version 2.0.0 - Spendwise
 
-- Add your total daily/monthly expenditure according to expense category (Personal or Shared)
 - Add/Record recurring transactions (e.g. Rent, Utilities etc.)
 - Display recurring transactions when asked
-- Display upcoming transactions
-- Send an email notification for depicting savings information
-- Currency conversion in real time scenarios
-- Making user information personalized like mail_id, name
+- Display Upcoming Bills for the particular month
+- Automatically add the recurring expenses to the history
+- Budget vs Income Graph
+- Recording Expense Category - Personal or Shared
+- Set savings goal and budget for the month
+- Send email alerts if budget is exceeded or savings goal is exhausted
+- Real Time Currency conversion using public APIs
+- Personalizing user information
+
 
 
 <!-- [comment]: <> (## Demo) -->
