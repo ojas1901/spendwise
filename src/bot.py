@@ -2,6 +2,7 @@
 File contains bot message handlers and their associated functions
 """
 import logging
+import requests, json 
 import os
 from calendar import monthrange
 import pathlib
@@ -20,14 +21,18 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 from email import encoders
+import smtplib, ssl
 
-sys.path.append("C:\Users\manid\Desktop\SE_Project\spendwise")
-try:
-    from src.user import User
-except:
-   from user import User
+sys.path.append("C:\Work\spendwise")
+# try:
+#     from src.user import User
+# except:
+   
+from user import User
 
-api_token = "6183219704:AAFR5TEZcMixpqpMA9xscN5QbRDIf-Gb92w"
+#api_token = os.environ["API_TOKEN"]
+api_token = "6192644492:AAG2YtZ5AsmOyj5ashOI_Fk3q-Fvmu5feb4"
+
 commands = {
     "menu": "Display this menu",
     "addRecurring": "Recording/ Adding a new recurring expense",
@@ -45,12 +50,13 @@ commands = {
     "categoryDelete": "Delete a category",
     "download":"Download your history",
     "displayDifferentCurrency": "Display the sum of expenditures for the current day/month in another currency",
-    "sendEmail":"Send an email with an attachment showing your history"
+    "sendEmail":"Send an email with an attachment showing your history",
+    "addSavingsGoal": "Record your target spending",
+    "joke": "Random jokes",
+    "register": "Add your details",
 }
 
-DOLLARS_TO_RUPEES = 75.01
-DOLLARS_TO_EUROS = 0.88
-DOLLARS_TO_SWISS_FRANC = 0.92
+
 
 bot = telebot.TeleBot(api_token)
 telebot.logger.setLevel(logging.INFO)
@@ -85,6 +91,96 @@ def start_and_menu_command(m):
         text_intro += "/" + c + ": "
         text_intro += commands[c] + "\n\n"
     bot.send_message(chat_id, text_intro)
+
+def RealTimeCurrencyExchangeRate(from_currency, to_currency, api_key) : 
+  
+    # importing required libraries 
+    
+  
+    # base_url variable store base url  
+    base_url = r"https://www.alphavantage.co/query?function = CURRENCY_EXCHANGE_RATE"
+  
+    # main_url variable store complete url 
+    main_url = base_url + "&from_currency =" + from_currency + "&to_currency =" + to_currency + "&apikey =" + api_key 
+  
+    # get method of requests module  
+    # return response object  
+    req_ob = requests.get(main_url) 
+  
+    # json method return json format 
+    # data into python dictionary data type. 
+      
+    # result contains list of nested dictionaries 
+    result = req_ob.json() 
+  
+    print(" Result :\n", result) 
+    return result
+
+# DOLLARS_TO_RUPEES = RealTimeCurrencyExchangeRate("USD", "INR", "WYQ1VNZQKS1XU2FR.")
+# DOLLARS_TO_EUROS = RealTimeCurrencyExchangeRate("USD", "EUR", "WYQ1VNZQKS1XU2FR.")
+# DOLLARS_TO_SWISS_FRANC = RealTimeCurrencyExchangeRate("USD", "EUR", "WYQ1VNZQKS1XU2FR.")
+
+DOLLARS_TO_RUPEES = 83.21
+DOLLARS_TO_EUROS = 0.94
+DOLLARS_TO_SWISS_FRANC = 0.89
+  
+@bot.message_handler(commands=["register"])
+def command_register(message):
+    """
+    Handles the commands 'register'. Gets input for user details and stores it.
+
+    :param message: telebot.types.Message object representing the message object
+    :type: object
+    :return: None
+    """
+    chat_id = str(message.chat.id)
+    option.pop(chat_id, None)
+    if chat_id not in user_list.keys():
+        user_list[chat_id] = User(chat_id)
+    message = bot.send_message(
+        chat_id,
+        "Enter your name",
+    )
+    user_list[chat_id].add_user_name(message.text, chat_id)
+    print(user_list[chat_id].name)
+    # message = bot.reply_to(
+    #     chat_id,
+    #     "Enter your email",
+    # )
+    # user_list[chat_id].add_user_email(message.text, chat_id)
+    # bot.reply_to(
+    #         chat_id,
+    #         "Details saved successfully"
+    #     )
+
+def get_joke():
+    response = requests.get('https://v2.jokeapi.dev/joke/Any')
+    if response.status_code == 200:
+        joke_data = response.json()
+        if joke_data['type'] == 'single':
+            return joke_data['joke']
+        elif joke_data['type'] == 'twopart':
+            return f"{joke_data['setup']}\n{joke_data['delivery']}"
+    return None
+
+@bot.message_handler(commands=["joke"])
+def command_joke(message):
+    """
+    Handles the commands 'joke'. Returns random joke.
+
+    :param message: telebot.types.Message object representing the message object
+    :type: object
+    :return: None
+    """
+    chat_id = str(message.chat.id)
+    option.pop(chat_id, None)
+    if chat_id not in user_list.keys():
+        user_list[chat_id] = User(chat_id)
+    joke = get_joke()
+    if joke:
+        bot.send_message(chat_id, text=joke)
+    else:
+        bot.send_message(chat_id, text="Unable to fetch joke.")
 
 
 @bot.message_handler(commands=["budget"])
@@ -335,12 +431,13 @@ def post_expense_category_selection(message, date_of_entry, amount_value):
                             text="*You have exhausted your monthly budget. You can check/download history*",
                             parse_mode="Markdown",
                         )
-                    elif total_value >= 0.8 * user_list[chat_id].monthly_budget:
+                    elif total_value > user_list[chat_id].monthly_budget-user_list[chat_id].monthly_savings:
                         bot.send_message(
-                            chat_id,
-                            text="*You have used 80% of the monthly budget.*",
-                            parse_mode="Markdown",
+                        chat_id,
+                        text="*You have used your savings too!.*",
+                        parse_mode="Markdown",
                         )
+                        sendMail()
                 bot.send_message(chat_id, add_message)
             elif expense_category == "Shared":
                 bot.send_message(chat_id, "Enter the number of people involved")
@@ -379,8 +476,8 @@ def post_members_entry(message, date_of_entry, amount_value):
             date_of_entry, option[chat_id], amount_value, chat_id
         )
         total_value = user_list[chat_id].monthly_total()
-        add_message = "The following expenditure has been recorded: You have spent ${} for {} on {}".format(
-            amount_str, category_str, date_str
+        add_message = "The following expenditure has been recorded: You have spent ${} for {} on {} on {} {} {}".format(
+            amount_str, category_str, date_str, total_value, user_list[chat_id].monthly_budget,user_list[chat_id].monthly_savings, 
         )
 
         if user_list[chat_id].monthly_budget > 0:
@@ -396,12 +493,16 @@ def post_members_entry(message, date_of_entry, amount_value):
                     text="*You have exhausted your monthly budget. You can check/download history*",
                     parse_mode="Markdown",
                 )
-            elif total_value >= 0.8 * user_list[chat_id].monthly_budget:
+               
+            elif total_value > user_list[chat_id].monthly_budget-user_list[chat_id].monthly_savings:
                 bot.send_message(
                     chat_id,
-                    text="*You have used 80% of the monthly budget.*",
+                    text="*You have used your savings too!.*",
                     parse_mode="Markdown",
                 )
+                sendMail()
+
+
         bot.send_message(chat_id, add_message)
 
     except Exception as ex:
@@ -690,6 +791,23 @@ def calculate_next_date(current_date, frequency):
             return next_date
         else:
             raise ValueError("Invalid frequency")
+def sendMail():
+    port = 587  # For starttls
+    smtp_server = "smtp.gmail.com"
+    sender_email = "spendwisebot@gmail.com"
+    receiver_email = "nitin.dhanabalan@gmail.com"
+    password = "jcxpkqdodrysphhy"
+    message = """\
+    Hello, You have exhausted your saving.
+    """
+
+    context = ssl.create_default_context()
+    with smtplib.SMTP(smtp_server, port) as server:
+        server.ehlo()  # Can be omitted
+        server.starttls(context=context)
+        server.ehlo()  # Can be omitted
+        server.login(sender_email, password)
+        server.sendmail(sender_email, receiver_email, message)
 
 
 @bot.message_handler(commands=["history"])
@@ -744,6 +862,52 @@ def show_history(message):
     except Exception as ex:
         logger.error(str(ex), exc_info=True)
         bot.reply_to(message, str(ex))
+
+@bot.message_handler(commands=["addSavingsGoal"])
+def command_budget(message):
+    chat_id = str(message.chat.id)
+    option.pop(chat_id, None)
+    if chat_id not in user_list.keys():
+        user_list[chat_id] = User(chat_id)
+    bot.send_message(
+        chat_id,
+        "Your current monthly savings is {}".format(user_list[chat_id].monthly_savings),
+    )
+    message = bot.send_message(
+        chat_id,
+        "Enter an amount to update your monthly savings. \n(Enter numeric values only)",
+    )
+    bot.register_next_step_handler(message, post_savings_input)
+
+
+def post_savings_input(message):
+    """
+    Receives the amount entered by the user and then adds it to the monthly_budget attribute of the user object. An
+    error is displayed if the entered amount is zero. Else, a message is shown that the budget has been added. :param
+    message: telebot.types.Message object representing the message object.
+
+    :param message: telebot.types.Message object representing the message object
+    :type: object
+    :return: None
+    """
+    try:
+        chat_id = str(message.chat.id)
+        amount_entered = message.text
+        amount_value = user_list[chat_id].validate_entered_amount(
+            amount_entered
+        )  # validate
+        if amount_value == 0:  # cannot be $0 spending
+            raise Exception("Savings amount has to be a positive number.")
+        user_list[chat_id].add_monthly_savings(amount_value, chat_id)
+        bot.send_message(
+            chat_id,
+            "The savings for this month has been set as ${}".format(
+                format(amount_value, ".2f")
+            ),
+        )
+
+    except Exception as ex:
+        bot.reply_to(message, "Oh no. " + str(ex))
 
 
 @bot.message_handler(commands=["download"])
@@ -872,8 +1036,8 @@ def acceptEmailId(message):
                 Thank you!
                 '''
                 #The mail addresses and password
-                sender_address = 'secheaper@gmail.com'
-                sender_pass = 'csc510se'
+                sender_address = 'spendwisebot@gmail.com'
+                sender_pass = 'jcxpkqdodrysphhy'
                 receiver_address = email
                 #Setup the MIME
                 message = MIMEMultipart()

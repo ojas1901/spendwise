@@ -1,4 +1,6 @@
+
 # :money_with_wings: Spendwise
+
 <hr>
 <p align="center">
 <a><img width=500 
@@ -38,6 +40,7 @@ With simple commands, this bot allows you to:
 - Real time currency conversion
 - Personalised user info
 - Monthly budget chart
+
 - Show the sum of your expenditure for the current day/month
 - Display your spending history
 - Clear/Erase all your records
