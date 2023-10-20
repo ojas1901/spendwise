@@ -51,6 +51,7 @@ commands = {
     "displayDifferentCurrency": "Display the sum of expenditures for the current day/month in another currency",
     "sendEmail":"Send an email with an attachment showing your history",
     "addSavingsGoal": "Record your target spending",
+    "joke": "Random jokes",
     "register": "Add your details",
 }
 
@@ -150,6 +151,36 @@ def command_register(message):
     #         chat_id,
     #         "Details saved successfully"
     #     )
+
+def get_joke():
+    response = requests.get('https://v2.jokeapi.dev/joke/Any')
+    if response.status_code == 200:
+        joke_data = response.json()
+        if joke_data['type'] == 'single':
+            return joke_data['joke']
+        elif joke_data['type'] == 'twopart':
+            return f"{joke_data['setup']}\n{joke_data['delivery']}"
+    return None
+
+@bot.message_handler(commands=["joke"])
+def command_joke(message):
+    """
+    Handles the commands 'joke'. Returns random joke.
+
+    :param message: telebot.types.Message object representing the message object
+    :type: object
+    :return: None
+    """
+    chat_id = str(message.chat.id)
+    option.pop(chat_id, None)
+    if chat_id not in user_list.keys():
+        user_list[chat_id] = User(chat_id)
+    joke = get_joke()
+    if joke:
+        bot.send_message(chat_id, text=joke)
+    else:
+        bot.send_message(chat_id, text="Unable to fetch joke.")
+
 
 @bot.message_handler(commands=["budget"])
 def command_budget(message):
