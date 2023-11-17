@@ -38,6 +38,7 @@ class User:
         self.name = ""
         self.email = ""
         self.rules = {}
+        self.members = {}
 
         # for the calendar widget
         self.max_date = datetime.today() + timedelta(days=1)
@@ -60,10 +61,21 @@ class User:
         """
 
         try:
-            data_dir = "data"
+            data_dir = "src/data"
             abspath = pathlib.Path("{0}/{1}.pickle".format(data_dir, userid)).absolute()
             with open(abspath, "wb") as f:
                 pickle.dump(self, f)
+
+        except Exception as e:
+            logger.error(str(e), exc_info=True)
+
+    def add_member(self, new_member_name, new_email_address, userid):
+      
+        try:
+            # self.spend_categories.append(new_category)
+            self.members[new_member_name]= [new_email_address, {'total': 0.}, {}]
+            self.save_user(userid)
+            print(self.members)
 
         except Exception as e:
             logger.error(str(e), exc_info=True)
