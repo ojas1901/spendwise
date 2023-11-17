@@ -23,7 +23,7 @@ from email.mime.base import MIMEBase
 from email import encoders
 import smtplib, ssl
 
-sys.path.append("C:\Work\spendwise")
+sys.path.append("C:\\Users\\vighn\\OneDrive\\Desktop\\SE proj 3\\spendwise\\")
 # try:
 #     from src.user import User
 # except:
@@ -31,11 +31,14 @@ sys.path.append("C:\Work\spendwise")
 from user import User
 
 #api_token = os.environ["API_TOKEN"]
-api_token = "6192644492:AAG2YtZ5AsmOyj5ashOI_Fk3q-Fvmu5feb4"
+# api_token = "6716767446:AAGxIF6hRW75UZKMI-4uJQBbRRMuhM7XVdA"
+api_token="6463675053:AAGmI8gMiKrA8APL4Clv890-YvFA_wNajPE"
 
 commands = {
     "menu": "Display this menu",
     "addRecurring": "Recording/ Adding a new recurring expense",
+    "addMember":"Add a new member in the group",
+    "memberList": "Shows the list of all the menbers in the group",
     "showRecurringTransactions": "Display all the recurring transactions",
     "displayUpcomingTransactions": "Display upcoming transactions",
     "add": "Record/Add a new spending",
@@ -64,6 +67,7 @@ user_list = {}
 option = {}
 all_transactions = []
 completeSpendings = 0
+temp_member = {}
 
 logger = logging.getLogger()
 
@@ -235,6 +239,100 @@ def post_budget_input(message):
 
     except Exception as ex:
         bot.reply_to(message, "Oh no. " + str(ex))
+
+
+@bot.message_handler(commands=["addMember"])
+def add_member(message):
+    try:
+        chat_id=str(message.chat.id)
+        print(user_list)
+
+        print(chat_id)
+
+        if chat_id not in user_list.keys():
+            # print("Entered addMember")
+            user_list[chat_id]= User(chat_id)
+
+        # user_list[chat_id] = User(chat_id)
+
+
+        temp_member.pop(chat_id, None)
+
+        memberName=bot.send_message(chat_id,"Enter a member name")
+        bot.register_next_step_handler(memberName, get_new_member_name)
+        
+
+    except Exception as ex:
+        bot.reply_to(message, "Oh no. " + str(ex))
+
+def get_new_member_name(message):
+
+    try:
+       chat_id=str(message.chat.id)
+       memberName=message.text.strip()
+    #    print(memberName)
+
+       if not user_list[chat_id] and memberName in user_list[chat_id].members:
+           raise Exception("Member already exists")
+       
+       if memberName=="":
+           raise Exception("Member name cannot be empty")
+       
+       temp_member[chat_id] = memberName
+       memberEmail = bot.reply_to(message, "Enter Member email address")
+       bot.register_next_step_handler(memberEmail, get_new_member_email)
+           
+    
+    
+    except Exception as ex:
+        bot.reply_to(message, "Oh no. " + str(ex))
+
+
+def get_new_member_email(message):
+
+    try:
+        chat_id=str(message.chat.id)
+        memberEmail = message.text.strip()
+
+        if memberEmail=="":
+           raise Exception("Member email cannot be empty")
+        
+        user_list[chat_id].add_member(temp_member[chat_id], memberEmail, chat_id)
+
+        bot.send_message(chat_id, "{} has been added as a new member".format(temp_member[chat_id]))
+
+
+
+    except Exception as ex:
+        bot.reply_to(message, "Oh no. " + str(ex))
+
+
+@bot.message_handler(commands=["memberList"])
+def member_list(message):
+    
+    try:
+        chat_id = str(message.chat.id)
+        if chat_id not in user_list.keys():
+            print("Entered memberList")
+            user_list[chat_id] = User(chat_id)
+            
+        # print(dir(user_list[chat_id]))
+        chat_id = str(message.chat.id)
+        if len(user_list[chat_id].members.keys()) == 0:
+            raise Exception("Sorry! No members found!")
+        
+        category_list_str = "Here is your member list : \n"
+        for index, member in enumerate(user_list[chat_id].members.keys()):
+            category_list_str += "{}. {}   {}".format(
+                index + 1, member, user_list[chat_id].members[member][0] + "\n"
+            )
+        bot.send_message(chat_id, category_list_str)
+
+    except Exception as ex:
+        logger.error(str(ex), exc_info=True)
+        bot.reply_to(message, str(ex))
+
+
 
 @bot.message_handler(commands=["add"])
 def command_add(message):
