@@ -2,7 +2,7 @@
 File contains bot message handlers and their associated functions
 """
 import logging
-import requests, json 
+import requests, json
 import os
 from calendar import monthrange
 import pathlib
@@ -22,16 +22,17 @@ from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 from email import encoders
 import smtplib, ssl
+import util
 
-sys.path.append("C:\Work\spendwise")
+sys.path.append("/Users/utsav/Desktop/Repositories/spendwise")
 # try:
 #     from src.user import User
 # except:
-   
+
 from user import User
 
-#api_token = os.environ["API_TOKEN"]
-api_token = "6192644492:AAG2YtZ5AsmOyj5ashOI_Fk3q-Fvmu5feb4"
+api_token = os.environ["API_TOKEN"]
+# api_token = "6470622722:AAGbH8wosogvjOGQah_96kVbFWkCU4Q0Tnc"
 
 commands = {
     "menu": "Display this menu",
@@ -48,15 +49,13 @@ commands = {
     "categoryAdd": "Add a new custom category",
     "categoryList": "List all categories",
     "categoryDelete": "Delete a category",
-    "download":"Download your history",
+    "download": "Download your history",
     "displayDifferentCurrency": "Display the sum of expenditures for the current day/month in another currency",
-    "sendEmail":"Send an email with an attachment showing your history",
+    "sendEmail": "Send an email with an attachment showing your history",
     "addSavingsGoal": "Record your target spending",
     "joke": "Random jokes",
     "register": "Add your details",
 }
-
-
 
 bot = telebot.TeleBot(api_token)
 telebot.logger.setLevel(logging.INFO)
@@ -84,37 +83,14 @@ def start_and_menu_command(m):
         "commands, please enter a command of your choice so that I can assist you further: \n\n "
     )
     for (
-        c
+            c
     ) in (
-        commands
+            commands
     ):  # generate help text out of the commands dictionary defined at the top
         text_intro += "/" + c + ": "
         text_intro += commands[c] + "\n\n"
     bot.send_message(chat_id, text_intro)
 
-def RealTimeCurrencyExchangeRate(from_currency, to_currency, api_key) : 
-  
-    # importing required libraries 
-    
-  
-    # base_url variable store base url  
-    base_url = r"https://www.alphavantage.co/query?function = CURRENCY_EXCHANGE_RATE"
-  
-    # main_url variable store complete url 
-    main_url = base_url + "&from_currency =" + from_currency + "&to_currency =" + to_currency + "&apikey =" + api_key 
-  
-    # get method of requests module  
-    # return response object  
-    req_ob = requests.get(main_url) 
-  
-    # json method return json format 
-    # data into python dictionary data type. 
-      
-    # result contains list of nested dictionaries 
-    result = req_ob.json() 
-  
-    print(" Result :\n", result) 
-    return result
 
 # DOLLARS_TO_RUPEES = RealTimeCurrencyExchangeRate("USD", "INR", "WYQ1VNZQKS1XU2FR.")
 # DOLLARS_TO_EUROS = RealTimeCurrencyExchangeRate("USD", "EUR", "WYQ1VNZQKS1XU2FR.")
@@ -123,7 +99,8 @@ def RealTimeCurrencyExchangeRate(from_currency, to_currency, api_key) :
 DOLLARS_TO_RUPEES = 83.21
 DOLLARS_TO_EUROS = 0.94
 DOLLARS_TO_SWISS_FRANC = 0.89
-  
+
+
 @bot.message_handler(commands=["register"])
 def command_register(message):
     """
@@ -153,6 +130,7 @@ def command_register(message):
     #         "Details saved successfully"
     #     )
 
+
 def get_joke():
     response = requests.get('https://v2.jokeapi.dev/joke/Any')
     if response.status_code == 200:
@@ -162,6 +140,7 @@ def get_joke():
         elif joke_data['type'] == 'twopart':
             return f"{joke_data['setup']}\n{joke_data['delivery']}"
     return None
+
 
 @bot.message_handler(commands=["joke"])
 def command_joke(message):
@@ -235,6 +214,7 @@ def post_budget_input(message):
 
     except Exception as ex:
         bot.reply_to(message, "Oh no. " + str(ex))
+
 
 @bot.message_handler(commands=["add"])
 def command_add(message):
@@ -348,9 +328,9 @@ def post_category_selection(message, date_to_add):
         bot.reply_to(message, "Oh no! " + str(ex))
         display_text = ""
         for (
-            c
+                c
         ) in (
-            commands
+                commands
         ):  # generate help text out of the commands dictionary defined at the top
             display_text += "/" + c + ": "
             display_text += commands[c] + "\n"
@@ -399,55 +379,56 @@ def post_expense_category_selection(message, date_of_entry, amount_value):
     :return: None
     """
     try:
-            chat_id = str(message.chat.id)
-            expense_category = message.text
-            amount_value = amount_value
-            if amount_value == 0:  # cannot be $0 spending
-                raise Exception("Spent amount has to be a non-zero number.")
-            if expense_category == "Personal":
-                date_str, category_str, amount_str = (
-                    date_of_entry.strftime("%m/%d/%Y %H:%M:%S"),
-                    str(option[chat_id]),
-                    format(amount_value, ".2f"),
-                )
-                user_list[chat_id].add_transaction(
-                    date_of_entry, option[chat_id], amount_value, chat_id
-                )
-                total_value = user_list[chat_id].monthly_total()
-                add_message = "The following expenditure has been recorded: You have spent ${} for {} on {}".format(
-                    amount_str, category_str, date_str
-                )
+        chat_id = str(message.chat.id)
+        expense_category = message.text
+        amount_value = amount_value
+        if amount_value == 0:  # cannot be $0 spending
+            raise Exception("Spent amount has to be a non-zero number.")
+        if expense_category == "Personal":
+            date_str, category_str, amount_str = (
+                date_of_entry.strftime("%m/%d/%Y %H:%M:%S"),
+                str(option[chat_id]),
+                format(amount_value, ".2f"),
+            )
+            user_list[chat_id].add_transaction(
+                date_of_entry, option[chat_id], amount_value, chat_id
+            )
+            total_value = user_list[chat_id].monthly_total()
+            add_message = "The following expenditure has been recorded: You have spent ${} for {} on {}".format(
+                amount_str, category_str, date_str
+            )
 
-                if user_list[chat_id].monthly_budget > 0:
-                    if total_value > user_list[chat_id].monthly_budget:
-                        bot.send_message(
-                            chat_id,
-                            text="*You have gone over the monthly budget*",
-                            parse_mode="Markdown",
-                        )
-                    elif total_value == user_list[chat_id].monthly_budget:
-                        bot.send_message(
-                            chat_id,
-                            text="*You have exhausted your monthly budget. You can check/download history*",
-                            parse_mode="Markdown",
-                        )
-                    elif total_value > user_list[chat_id].monthly_budget-user_list[chat_id].monthly_savings:
-                        bot.send_message(
+            if user_list[chat_id].monthly_budget > 0:
+                if total_value > user_list[chat_id].monthly_budget:
+                    bot.send_message(
+                        chat_id,
+                        text="*You have gone over the monthly budget*",
+                        parse_mode="Markdown",
+                    )
+                elif total_value == user_list[chat_id].monthly_budget:
+                    bot.send_message(
+                        chat_id,
+                        text="*You have exhausted your monthly budget. You can check/download history*",
+                        parse_mode="Markdown",
+                    )
+                elif total_value > user_list[chat_id].monthly_budget - user_list[chat_id].monthly_savings:
+                    bot.send_message(
                         chat_id,
                         text="*You have used your savings too!.*",
                         parse_mode="Markdown",
-                        )
-                        sendMail()
-                bot.send_message(chat_id, add_message)
-            elif expense_category == "Shared":
-                bot.send_message(chat_id, "Enter the number of people involved")
-                bot.register_next_step_handler(message, post_members_entry, date_of_entry, amount_value)
-            else:
-                bot.send_message("Invalid Category!")
+                    )
+                    sendMail()
+            bot.send_message(chat_id, add_message)
+        elif expense_category == "Shared":
+            bot.send_message(chat_id, "Enter the number of people involved")
+            bot.register_next_step_handler(message, post_members_entry, date_of_entry, amount_value)
+        else:
+            bot.send_message("Invalid Category!")
     except Exception as ex:
-            print("Exception occurred : ")
-            logger.error(str(ex), exc_info=True)
-            bot.reply_to(message, "Processing Failed - \nError : " + str(ex))
+        print("Exception occurred : ")
+        logger.error(str(ex), exc_info=True)
+        bot.reply_to(message, "Processing Failed - \nError : " + str(ex))
+
 
 def post_members_entry(message, date_of_entry, amount_value):
     """
@@ -463,9 +444,9 @@ def post_members_entry(message, date_of_entry, amount_value):
     try:
         chat_id = str(message.chat.id)
         members_involved = int(message.text)
-        amount_value = amount_value/members_involved
+        amount_value = amount_value / members_involved
         if amount_value == 0:  # cannot be $0 spending
-                raise Exception("Spent amount has to be a non-zero number.")
+            raise Exception("Spent amount has to be a non-zero number.")
 
         date_str, category_str, amount_str = (
             date_of_entry.strftime("%m/%d/%Y %H:%M:%S"),
@@ -477,7 +458,8 @@ def post_members_entry(message, date_of_entry, amount_value):
         )
         total_value = user_list[chat_id].monthly_total()
         add_message = "The following expenditure has been recorded: You have spent ${} for {} on {} on {} {} {}".format(
-            amount_str, category_str, date_str, total_value, user_list[chat_id].monthly_budget,user_list[chat_id].monthly_savings, 
+            amount_str, category_str, date_str, total_value, user_list[chat_id].monthly_budget,
+            user_list[chat_id].monthly_savings,
         )
 
         if user_list[chat_id].monthly_budget > 0:
@@ -493,15 +475,14 @@ def post_members_entry(message, date_of_entry, amount_value):
                     text="*You have exhausted your monthly budget. You can check/download history*",
                     parse_mode="Markdown",
                 )
-               
-            elif total_value > user_list[chat_id].monthly_budget-user_list[chat_id].monthly_savings:
+
+            elif total_value > user_list[chat_id].monthly_budget - user_list[chat_id].monthly_savings:
                 bot.send_message(
                     chat_id,
                     text="*You have used your savings too!.*",
                     parse_mode="Markdown",
                 )
                 sendMail()
-
 
         bot.send_message(chat_id, add_message)
 
@@ -515,7 +496,7 @@ def post_members_entry(message, date_of_entry, amount_value):
 # def handle_document(message):
 #     # Download the document
 #     downloaded_file = bot.download_file(message.document.file_id)
-    
+
 #     # Save the downloaded file locally (optional)
 #     with open(message.document.file_name, 'wb') as file:
 #         file.write(downloaded_file)
@@ -568,13 +549,14 @@ def command_addRecurring(message):
     bot.send_message(chat_id, "A new Recurring Expense is created on " + formatted_date)
     start_date = handler_callback(formatted_date, user)
     print(user_list[chat_id].recurring_categories)
-    recurring_categories = user_list[chat_id].recurring_categories 
+    recurring_categories = user_list[chat_id].recurring_categories
     markup = types.ReplyKeyboardMarkup(one_time_keyboard=True)
     markup.row_width = 2
     for c in recurring_categories:
         markup.add(c)
     message = bot.send_message(chat_id, "Select the Category or Enter a new Custom Category", reply_markup=markup)
-    bot.register_next_step_handler(message, post_recurring_category_selection,start_date)
+    bot.register_next_step_handler(message, post_recurring_category_selection, start_date)
+
 
 def post_recurring_category_selection(message, start_date):
     """
@@ -594,7 +576,7 @@ def post_recurring_category_selection(message, start_date):
         recurring_category = selected_category
         markup = types.ReplyKeyboardMarkup(one_time_keyboard=True)
         markup.add("Daily", "Weekly", "Monthly")
-        
+
         message = bot.send_message(
             chat_id,
             "Select the frequency of the recurring expense:",
@@ -606,9 +588,9 @@ def post_recurring_category_selection(message, start_date):
         bot.reply_to(message, "Oh no! " + str(ex))
         display_text = ""
         for (
-            c
+                c
         ) in (
-            commands
+                commands
         ):  # generate help text out of the commands dictionary defined at the top
             display_text += "/" + c + ": "
             display_text += commands[c] + "\n"
@@ -631,11 +613,12 @@ def post_recurring_frequency_selection(message, start_date, recurring_category):
     option.pop(chat_id, None)
     selected_frequency = message.text
     message = bot.send_message(chat_id,
-        "How much will you spend on {}? \n(Enter numeric values only)".format(
-            str(recurring_category)
-        ),
-    )
-    bot.register_next_step_handler(message, post_recurring_amount_input, start_date, recurring_category, selected_frequency)
+                               "How much will you spend on {}? \n(Enter numeric values only)".format(
+                                   str(recurring_category)
+                               ),
+                               )
+    bot.register_next_step_handler(message, post_recurring_amount_input, start_date, recurring_category,
+                                   selected_frequency)
 
 
 def post_recurring_amount_input(message, start_date, recurring_category, selected_frequency):
@@ -659,8 +642,9 @@ def post_recurring_amount_input(message, start_date, recurring_category, selecte
         )  # validate
         if recurring_amount_value == 0:  # cannot be $0 spending
             raise Exception("Recurring spend amount has to be a non-zero number.")
-        if recurring_amount_value < 0: # cannot be negative
-            raise Exception("Recurring Spends cannot be negative, if you want to add negative spendings add as a form of budgets")
+        if recurring_amount_value < 0:  # cannot be negative
+            raise Exception(
+                "Recurring Spends cannot be negative, if you want to add negative spendings add as a form of budgets")
 
         date_str, category_str, amount_str = (
             start_date.strftime("%m/%d/%Y %H:%M:%S"),
@@ -701,6 +685,7 @@ def post_recurring_amount_input(message, start_date, recurring_category, selecte
         logger.error(str(ex), exc_info=True)
         bot.reply_to(message, "Processing Failed - \nError : " + str(ex))
 
+
 @bot.message_handler(commands=["showRecurringTransactions"])
 def show_recurring_transactions(message):
     """
@@ -717,10 +702,11 @@ def show_recurring_transactions(message):
     recurringTransactions = user.recurring_transactions()
     for transaction in recurringTransactions:
         print(transaction)
-        rows.append([transaction["StartDate"].strftime("%Y-%m-%d"), transaction["RecurringCategory"], transaction["Frequency"], transaction["Value"]])
+        rows.append(
+            [transaction["StartDate"].strftime("%Y-%m-%d"), transaction["RecurringCategory"], transaction["Frequency"],
+             transaction["Value"]])
 
     recurring_transactions_table = tabulate(rows, headers, "simple")
-
 
     if recurring_transactions_table:
         # If there are recurring transactions, send them as a message
@@ -728,6 +714,7 @@ def show_recurring_transactions(message):
     else:
         # If there are no recurring transactions, send a message indicating that
         bot.send_message(chat_id, "No recurring transactions found.")
+
 
 @bot.message_handler(commands=["displayUpcomingTransactions"])
 def display_upcoming_transactions(message):
@@ -767,8 +754,8 @@ def display_upcoming_transactions(message):
     upcoming_transactions.sort(key=lambda x: x["DateOfTransaction"])
     print(upcoming_transactions)
     table_data = [
-    [transaction["DateOfTransaction"].strftime("%Y-%m-%d"), transaction["Category"], transaction["Value"]]
-    for transaction in upcoming_transactions]
+        [transaction["DateOfTransaction"].strftime("%Y-%m-%d"), transaction["Category"], transaction["Value"]]
+        for transaction in upcoming_transactions]
     message = bot.send_message(chat_id, "The List of upcoming Transactions")
     # Define the table headers
     headers = ["Next Due Date", "Purpose", "Amount in $"]
@@ -776,21 +763,24 @@ def display_upcoming_transactions(message):
     table = tabulate(table_data, headers, tablefmt="simple")
     bot.reply_to(message, table)
 
-def calculate_next_date(current_date, frequency):
-        # Define a mapping of frequencies to timedelta intervals
-        frequency_intervals = {
-            "Daily": timedelta(days=1),
-            "Weekly": timedelta(weeks=1),
-            "Monthly": timedelta(days=30),  # A rough approximation for a month
-        }
 
-        # Check if the frequency is valid
-        if frequency in frequency_intervals:
-            interval = frequency_intervals[frequency]
-            next_date = current_date + interval
-            return next_date
-        else:
-            raise ValueError("Invalid frequency")
+def calculate_next_date(current_date, frequency):
+    # Define a mapping of frequencies to timedelta intervals
+    frequency_intervals = {
+        "Daily": timedelta(days=1),
+        "Weekly": timedelta(weeks=1),
+        "Monthly": timedelta(days=30),  # A rough approximation for a month
+    }
+
+    # Check if the frequency is valid
+    if frequency in frequency_intervals:
+        interval = frequency_intervals[frequency]
+        next_date = current_date + interval
+        return next_date
+    else:
+        raise ValueError("Invalid frequency")
+
+
 def sendMail():
     port = 587  # For starttls
     smtp_server = "smtp.gmail.com"
@@ -849,19 +839,19 @@ def show_history(message):
                     while next_date <= current_date:
                         count = count + 1
                         date = next_date.strftime("%m/%d/%y")
-                        value = format(transaction["Value"],".2f")
-                        table.append([date, category, "$ " + value]) 
+                        value = format(transaction["Value"], ".2f")
+                        table.append([date, category, "$ " + value])
                         next_date = calculate_next_date(next_date, frequency)
-
 
             if count == 0:
                 raise Exception("Sorry! No spending records found!")
-            spend_total_str="<pre>"+ tabulate(table, headers='firstrow')+"</pre>"
+            spend_total_str = "<pre>" + tabulate(table, headers='firstrow') + "</pre>"
             bot.send_message(chat_id, spend_total_str, parse_mode="HTML")
 
     except Exception as ex:
         logger.error(str(ex), exc_info=True)
         bot.reply_to(message, str(ex))
+
 
 @bot.message_handler(commands=["addSavingsGoal"])
 def command_budget(message):
@@ -933,7 +923,7 @@ def download_history(message):
                     count = count + 1
                     date = transaction["Date"].strftime("%m/%d/%y")
                     value = format(transaction["Value"], ".2f")
-                    table.append([date, category, "$"+value])
+                    table.append([date, category, "$" + value])
             if count == 0:
                 raise Exception("Sorry! No spending records found!")
 
@@ -950,7 +940,8 @@ def download_history(message):
     except Exception as ex:
         logger.error(str(ex), exc_info=True)
         bot.reply_to(message, str(ex))
-    
+
+
 @bot.message_handler(commands=["sendEmail"])
 def send_email(message):
     """
@@ -974,7 +965,7 @@ def send_email(message):
                     count = count + 1
                     date = transaction["Date"].strftime("%m/%d/%y")
                     value = format(transaction["Value"], ".2f")
-                    table.append([date, category, "$"+value])
+                    table.append([date, category, "$" + value])
             if count == 0:
                 raise Exception("Sorry! No spending records found!")
 
@@ -998,7 +989,7 @@ def send_email(message):
 def acceptEmailId(message):
     email = message.text
     regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
-    if(re.fullmatch(regex, email)):
+    if (re.fullmatch(regex, email)):
         try:
             chat_id = str(message.chat.id)
             count = 0
@@ -1013,11 +1004,11 @@ def acceptEmailId(message):
                         count = count + 1
                         date = transaction["Date"].strftime("%m/%d/%y")
                         value = format(transaction["Value"], ".2f")
-                        table.append([date, category, "$"+value])
+                        table.append([date, category, "$" + value])
                 if count == 0:
                     raise Exception("Sorry! No spending records found!")
 
-                with open('history.csv', 'w', newline = '') as file:
+                with open('history.csv', 'w', newline='') as file:
                     writer = csv.writer(file)
                     writer.writerows(table)
                 # s = io.StringIO()
@@ -1035,30 +1026,30 @@ def acceptEmailId(message):
                 This email has an attached copy of your expenditure history.
                 Thank you!
                 '''
-                #The mail addresses and password
+                # The mail addresses and password
                 sender_address = 'spendwisebot@gmail.com'
                 sender_pass = 'jcxpkqdodrysphhy'
                 receiver_address = email
-                #Setup the MIME
+                # Setup the MIME
                 message = MIMEMultipart()
                 message['From'] = sender_address
                 message['To'] = receiver_address
                 message['Subject'] = 'Spending History document'
-                #The subject line
-                #The body and the attachments for the mail
+                # The subject line
+                # The body and the attachments for the mail
                 message.attach(MIMEText(mail_content, 'plain'))
                 attach_file_name = "history.csv"
                 attach_file = open(attach_file_name, 'rb')
                 payload = MIMEBase('application', 'octate-stream')
                 payload.set_payload((attach_file).read())
-                encoders.encode_base64(payload) #encode the attachment
-                #add payload header with filename
+                encoders.encode_base64(payload)  # encode the attachment
+                # add payload header with filename
                 payload.add_header('Content-Decomposition', 'attachment', filename=attach_file_name)
                 message.attach(payload)
-                #Create SMTP session for sending the mail
-                session = smtplib.SMTP('smtp.gmail.com', 587) #use gmail with port
-                session.starttls() #enable security
-                session.login(sender_address, sender_pass) #login with mail_id and password
+                # Create SMTP session for sending the mail
+                session = smtplib.SMTP('smtp.gmail.com', 587)  # use gmail with port
+                session.starttls()  # enable security
+                session.login(sender_address, sender_pass)  # login with mail_id and password
                 text = message.as_string()
                 session.sendmail(sender_address, receiver_address, text)
                 session.quit()
@@ -1071,7 +1062,6 @@ def acceptEmailId(message):
             bot.reply_to(message, str(ex))
     else:
         bot.send_message(message.chat.id, 'incorrect email')
-        
 
 
 @bot.message_handler(commands=["display"])
@@ -1156,11 +1146,12 @@ def display_total(message):
                 if start_date <= query:
                     next_date = start_date
                     while next_date <= query:
-                        if next_date.strftime("%m")  == query.strftime("%m") and next_date.strftime("%d")  == query.strftime("%d"):
+                        if next_date.strftime("%m") == query.strftime("%m") and next_date.strftime(
+                                "%d") == query.strftime("%d"):
                             query_result += "Category {} Date {} Value {:.2f} \n".format(
-                            transaction["RecurringCategory"],
-                            next_date.strftime(dateFormat),
-                            transaction["Value"],
+                                transaction["RecurringCategory"],
+                                next_date.strftime(dateFormat),
+                                transaction["Value"],
                             )
                             total_value += value
                         # Calculate the next occurrence date based on the current date and frequency
@@ -1194,12 +1185,13 @@ def display_total(message):
                 if start_date <= query:
                     next_date = start_date
                     while next_date <= query:
-                        if next_date.strftime("%m")  == query.strftime("%m"):
-                            if next_date.strftime("%m")  == query.strftime("%m") and next_date.strftime("%d")  == query.strftime("%d"):
+                        if next_date.strftime("%m") == query.strftime("%m"):
+                            if next_date.strftime("%m") == query.strftime("%m") and next_date.strftime(
+                                    "%d") == query.strftime("%d"):
                                 query_result += "Category {} Date {} Value {:.2f} \n".format(
-                                transaction["RecurringCategory"],
-                                next_date.strftime(dateFormat),
-                                transaction["Value"],
+                                    transaction["RecurringCategory"],
+                                    next_date.strftime(dateFormat),
+                                    transaction["Value"],
                                 )
                             total_value += value
                         # Calculate the next occurrence date based on the current date and frequency
@@ -1629,8 +1621,8 @@ def command_delete(message):
     chat_id = str(message.chat.id)
     try:
         if (
-            chat_id in user_list
-            and user_list[chat_id].get_number_of_transactions() != 0
+                chat_id in user_list
+                and user_list[chat_id].get_number_of_transactions() != 0
         ):
             curr_day = datetime.now()
             prompt = "Enter the day, month, or All\n"
@@ -1776,7 +1768,7 @@ def get_chart(message):
     :return: None
     """
     # Original Code
-    
+
     # chat_id = str(message.chat.id)
     # chart_file = user_list[chat_id].create_chart(chat_id)
     # with open(chart_file, "rb") as f:
@@ -1790,7 +1782,6 @@ def get_chart(message):
         with open(cf, "rb") as f:
             bot.send_photo(chat_id, f)
             # bot.send_photo(chat_id, cf)
-
 
 
 def create_header(user):
@@ -1834,12 +1825,12 @@ def handler_callback(callback, user):
     """
 
     if callback == "prev" and user.curr_date.replace(day=1) >= user.min_date.replace(
-        day=1
+            day=1
     ):
         user.curr_date = user.curr_date.replace(month=user.curr_date.month - 1)
         return None
     if callback == "next" and user.curr_date.replace(day=1) <= user.max_date.replace(
-        day=1
+            day=1
     ):
         user.curr_date = user.curr_date.replace(month=user.curr_date.month + 1)
         return None
@@ -1905,6 +1896,7 @@ def command_display_currency(message):
             print("Exception occurred : ")
             logger.error(str(ex), exc_info=True)
             bot.reply_to(message, "Oops! - \nError : " + str(ex))
+
 
 def display_total_currency(message):
     """
@@ -1977,11 +1969,11 @@ def display_total_currency(message):
             total_spendings += query_result
             total_spendings += "Total Value {:.2f}\n".format(total_value)
             total_spendings += "Budget for the month {}".format(str(budget_value))
-            global completeSpendings # pylint: disable=global-statement
+            global completeSpendings  # pylint: disable=global-statement
             completeSpendings = total_value
             choice = bot.reply_to(
-                        message, "Which currency to you want to covert to?", reply_markup=markup
-                    )
+                message, "Which currency to you want to covert to?", reply_markup=markup
+            )
             bot.register_next_step_handler(choice, display_total_currency2)
             # bot.send_message(chat_id, total_spendings)
 
@@ -1997,33 +1989,18 @@ def display_total_currency2(message):
         selection = message.text
         markup = types.ReplyKeyboardMarkup(one_time_keyboard=True)
         markup.row_width = 2
-        
-        if selection == "INR":
-            completeExpenses = completeSpendings * DOLLARS_TO_RUPEES
-            completeExpensesMessage = (
-            "The total expenses in INR is Rs. " + str(completeExpenses)
+        exchange_rate = util.real_time_currency_convert("USD", selection)
+        complete_expenses = completeSpendings * exchange_rate
+        bot_message = (
+                f"The total expenses in {selection} is {complete_expenses} {selection}"
         )
-            bot.reply_to(message, completeExpensesMessage)
-        if selection == "EUR":
-            completeExpenses = completeSpendings * DOLLARS_TO_EUROS
-            completeExpensesMessage = (
-            "The total expenses in EUR is " + str(completeExpenses) + " EUR"
-        )
-            bot.reply_to(message, completeExpensesMessage)
-        if selection == "CHF":
-            completeExpenses = completeSpendings * DOLLARS_TO_EUROS
-            completeExpensesMessage = (
-            "The total expenses in Swiss Franc is " + str(completeExpenses) + " CHF"
-        )
-            bot.reply_to(message, completeExpensesMessage)
+        bot.reply_to(message, bot_message)
 
 
     except Exception as ex:
         print("Exception occurred : ")
         logger.error(str(ex), exc_info=True)
         bot.reply_to(message, "Processing Failed - Error: " + str(ex))
-
-
 
 
 if __name__ == "__main__":
