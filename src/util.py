@@ -1,4 +1,7 @@
+import os
+
 import requests
+import csv
 
 CURRENCY_API_KEY = '4YOHN3QHDBARIJEX'
 
@@ -30,3 +33,24 @@ def real_time_currency_convert(from_currency, to_currency):
     result = req_ob.json()[dict_outer_key][dict_inner_key]
 
     return round(float(result), 2)
+
+
+def export_to_csv(content, header, path):
+    """
+    This is a function which helps to export the given content with the given header to csv. It will create a new file
+    at the given path
+
+    :param content: list of content
+    :type: [[str]]
+    :param header: Header List
+    :type: [str]
+    :param path: Path to save the file
+    :type: str
+    :return: CSV File
+    :rtype: object
+    """
+    with open(path, 'w', newline='') as csvfile:
+        writer = csv.writer(csvfile, delimiter=',')
+        writer.writerow(header)
+        writer.writerows(content)
+    return open(path, 'rb')

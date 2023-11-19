@@ -55,6 +55,7 @@ commands = {
     "addSavingsGoal": "Record your target spending",
     "joke": "Random jokes",
     "register": "Add your details",
+    "exportCSV": "Export transactions to CSV"
 }
 
 bot = telebot.TeleBot(api_token)
@@ -2001,6 +2002,39 @@ def display_total_currency2(message):
         print("Exception occurred : ")
         logger.error(str(ex), exc_info=True)
         bot.reply_to(message, "Processing Failed - Error: " + str(ex))
+
+
+@bot.message_handler(commands=["exportCSV"])
+def command_export_csv(message):
+    """
+        Handles the command 'exportCSV'. If the user has no transaction history, a message is displayed. If there is
+        transaction history, user is given choices of exporting transaction records to CSV.
+
+        :param message: telebot.types.Message object representing the message object
+        :type: object
+        :return: None
+    """
+    chat_id = str(message.chat.id)
+    if chat_id not in user_list or user_list[chat_id].get_number_of_transactions() == 0:
+        bot.send_message(
+            chat_id, "Oops! Looks like you do not have any spending records!"
+        )
+    else:
+        try:
+            user = user_list[chat_id]
+            chat_id = str(message.chat.id)
+            recurring_transaction = user.recurring_transactions()
+
+            if len(user_list[chat_id].transactions) == 0 and len(recurring_transaction) == 0:
+                raise Exception("Oops! Looks like you do not have any spending records!")
+
+            transactions = user_list[chat_id].get_all_transactions()
+            csv_file = util.export_to_csv(transactions, ["Category", "Date", "Value"], 'data/export.csv')
+            bot.send_document(chat_id, csv_file)
+        except Exception as ex:
+            print("Exception occurred : ")
+            logger.error(str(ex), exc_info=True)
+            bot.reply_to(message, "Oops! - \nError : " + str(ex))
 
 
 if __name__ == "__main__":
