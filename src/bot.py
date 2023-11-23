@@ -12,6 +12,9 @@ import time
 import csv
 import io
 from datetime import datetime, timedelta
+
+from google.cloud import speech
+from google.oauth2 import service_account
 from tabulate import tabulate
 import sys
 import telebot
@@ -855,7 +858,7 @@ def show_history(message):
 
 
 @bot.message_handler(commands=["addSavingsGoal"])
-def command_budget(message):
+def command_add_savings_goal(message):
     chat_id = str(message.chat.id)
     option.pop(chat_id, None)
     if chat_id not in user_list.keys():
@@ -1993,7 +1996,7 @@ def display_total_currency2(message):
         exchange_rate = util.real_time_currency_convert("USD", selection)
         complete_expenses = completeSpendings * exchange_rate
         bot_message = (
-                f"The total expenses in {selection} is {complete_expenses} {selection}"
+            f"The total expenses in {selection} is {complete_expenses} {selection}"
         )
         bot.reply_to(message, bot_message)
 
@@ -2035,6 +2038,108 @@ def command_export_csv(message):
             print("Exception occurred : ")
             logger.error(str(ex), exc_info=True)
             bot.reply_to(message, "Oops! - \nError : " + str(ex))
+
+
+@bot.message_handler(content_types=["voice"])
+def command_voice(message):
+    """
+    Handles voice input sent by the user.
+
+    :param message: telebot.types.Message object representing the message object
+    :type: object
+    :return: None
+    """
+    audio: telebot.types.Audio = message.voice
+    file_path = util.get_file_path(audio.file_id)
+    audio_path = util.generate_audio_file(file_path)
+    transcript = util.transcribe_audio(audio_path)
+    if transcript:
+        resolve_command(transcript, message)
+
+
+def resolve_command(transcript: str, message):
+    """
+    Resolve the transcript from speech to text to command
+
+    :param transcript: Transcript string from speech to text output
+    :type: str
+    :param message: telebot.types.Message object representing the message object
+    :type: object
+    :return: None
+    """
+    from thefuzz import fuzz
+    command_list = ["menu",
+                    "addRecurring",
+                    "showRecurringTransactions",
+                    "displayUpcomingTransactions",
+                    "add",
+                    "display",
+                    "history",
+                    "delete",
+                    "edit",
+                    "budget",
+                    "chart",
+                    "categoryAdd",
+                    "categoryList",
+                    "categoryDelete",
+                    "download",
+                    "displayDifferentCurrency",
+                    "sendEmail",
+                    "addSavingsGoal",
+                    "joke",
+                    "register",
+                    "exportCSV", ]
+    max_ratio = -1
+    curr_best_guess = ''
+    for command in command_list:
+        ratio = fuzz.ratio(command, transcript)
+        if ratio > max_ratio:
+            curr_best_guess = command
+            max_ratio = ratio
+    if curr_best_guess == "menu":
+        start_and_menu_command(message)
+    elif curr_best_guess == "addRecurring":
+        command_addRecurring(message)
+    elif curr_best_guess == "showRecurringTransactions":
+        show_recurring_transactions(message)
+    elif curr_best_guess == "displayUpcomingTransactions":
+        display_upcoming_transactions(message)
+    elif curr_best_guess == "add":
+        command_add(message)
+    elif curr_best_guess == "display":
+        command_display(message)
+    elif curr_best_guess == "history":
+        show_history(message)
+    elif curr_best_guess == "delete":
+        command_delete(message)
+    elif curr_best_guess == "edit":
+        edit1(message)
+    elif curr_best_guess == "budget":
+        command_budget(message)
+    elif curr_best_guess == "chart":
+        get_chart(message)
+    elif curr_best_guess == "categoryAdd":
+        category_add(message)
+    elif curr_best_guess == "categoryList":
+        category_list(message)
+    elif curr_best_guess == "categoryDelete":
+        category_delete(message)
+    elif curr_best_guess == "download":
+        download_history(message)
+    elif curr_best_guess == "displayDifferentCurrency":
+        command_display_currency(message)
+    elif curr_best_guess == "sendEmail":
+        send_email(message)
+    elif curr_best_guess == "addSavingsGoal":
+        command_add_savings_goal(message)
+    elif curr_best_guess == "joke":
+        command_joke(message)
+    elif curr_best_guess == "register":
+        command_register(message)
+    elif curr_best_guess == "exportCSV":
+        command_export_csv(message)
+    else:
+        bot.reply_to(message, "Sorry couldn't get you. Please try again")
 
 
 if __name__ == "__main__":

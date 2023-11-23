@@ -1,7 +1,11 @@
 pyTelegramBotAPI==4.1.0
-pandas~=2.1.3
-matplotlib==3.4.3
-tabulate~=0.9.0
-pytest~=7.4.3
+pandas
+matplotlib
+tabulate
+pytest
 pytest-cov
-requests~=2.31.0
+requests
+google-cloud-speech
+thefuzz
+
+setuptools
