@@ -662,3 +662,16 @@ class User:
 
         except Exception as e:
             logger.error(str(e), exc_info=True)
+
+    def get_all_transactions(self):
+        """
+        Gets all available transactions in the form of Category, Date and Value
+        """
+        data = []
+        for category in self.transactions:
+            category_data = self.transactions[category]
+            if len(category_data) > 0:
+                for transaction in category_data:
+                    date: datetime = transaction['Date']
+                    data.append([category, date.strftime('%m/%d/%Y'), transaction['Value']])
+        return data
