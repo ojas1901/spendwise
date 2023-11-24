@@ -23,16 +23,17 @@ from email.mime.base import MIMEBase
 from email import encoders
 import smtplib, ssl
 
-sys.path.append("C:\\Users\\91961\\OneDrive\\Desktop\\SE\\spendwise")
+sys.path.append("C:\\Users\\vighn\\OneDrive\\Desktop\\SE proj 3\\spendwise\\")
 # try:
 #     from src.user import User
 # except:
-   
+
 from user import User
 
 #api_token = os.environ["API_TOKEN"]
 # api_token = "6716767446:AAGxIF6hRW75UZKMI-4uJQBbRRMuhM7XVdA"
-api_token="6739441144:AAFP3H-lQ7zw8kHom-GEzMm5j5r3N8xLyvg"
+api_token="6463675053:AAGmI8gMiKrA8APL4Clv890-YvFA_wNajPE"
+
 
 commands = {
     "menu": "Display this menu",
