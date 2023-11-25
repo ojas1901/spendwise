@@ -53,6 +53,7 @@ commands = {
     "splitBill": "Split a bill across members",
     "viewSplitBill": "View the bills has been splited",
     "budget": "Set budget for the month",
+    "income": "Add income for the month",
     "chart": "See your expenditure in different charts",
     "categoryAdd": "Add a new custom category",
     "categoryList": "List all categories",
@@ -359,6 +360,60 @@ def view_split_Bill(message):
     except Exception as ex:
         bot.reply_to(message, str(ex))
 
+@bot.message_handler(commands=["income"])
+def command_income(message):
+    """
+    Handles the commands 'income'. Gets input for income and stores it.
+
+    :param message: telebot.types.Message object representing the message object
+    :type: object
+    :return: None
+    """
+    chat_id = str(message.chat.id)
+    option.pop(chat_id, None)
+    if chat_id not in user_list.keys():
+        user_list[chat_id] = User(chat_id)
+    bot.send_message(
+        chat_id,
+        "Your current monthly income is {}".format(user_list[chat_id].monthly_income),
+    )
+    message = bot.send_message(
+        chat_id,
+        "Enter an amount to update your monthly income. \n(Enter numeric values only)",
+    )
+    bot.register_next_step_handler(message, post_income_input)
+
+
+def post_income_input(message):
+    """
+    Receives the amount entered by the user and then adds it to the monthly_income attribute of the user object. An
+    error is displayed if the entered amount is zero. Else, a message is shown that the income has been added. :param
+    message: telebot.types.Message object representing the message object.
+
+    :param message: telebot.types.Message object representing the message object
+    :type: object
+    :return: None
+    """
+    try:
+        chat_id = str(message.chat.id)
+        amount_entered = message.text
+        amount_value = user_list[chat_id].validate_entered_amount(
+            amount_entered
+        )  # validate
+        if amount_value == 0:  # cannot be $0 spending
+            raise Exception("Income amount has to be a positive number.")
+        user_list[chat_id].add_monthly_income(amount_value, chat_id)
+        bot.send_message(
+            chat_id,
+            "The income received for this month has been set as ${}".format(
+                format(amount_value, ".2f")
+            ),
+        )
+
+    except Exception as ex:
+        bot.reply_to(message, "Oh no. " + str(ex))
+
+
 @bot.message_handler(commands=["budget"])
 def command_budget(message):
     """
@@ -481,7 +536,6 @@ def get_new_member_email(message):
 
 @bot.message_handler(commands=["memberList"])
 def member_list(message):
-    
     try:
         chat_id = str(message.chat.id)
         if chat_id not in user_list.keys():
@@ -508,6 +562,7 @@ def member_list(message):
 
 @bot.message_handler(commands=["add"])
 def command_add(message):
+    # print(message)
     """
     Handles the command 'add'. Lists the categories from which the user can select. The function
     'post_category_selection' is called next. :param message: telebot.types.Message object representing the message
@@ -535,6 +590,7 @@ def is_add_callback(query):
     return query.data != "none" and "/" not in query.data
 
 
+
 @bot.callback_query_handler(func=is_add_callback, filter=None)
 def post_date_selection(message):
     """
@@ -543,6 +599,7 @@ def post_date_selection(message):
     :param message: the message sent after the user clicks a button
     :return: None
     """
+    # print(message)
     chat_id = str(message.message.chat.id)
     option.pop(chat_id, None)
 
@@ -582,18 +639,8 @@ def post_date_selection(message):
         logger.error(str(ex), exc_info=True)
         bot.reply_to(message.message, "Processing Failed - \nError : " + str(ex))
 
-
-def post_category_selection(message, date_to_add):
-    """
-    Receives the category selected by the user and then asks for the amount spend. If an invalid category is given,
-    an error message is displayed followed by command list. IF the category given is valid, 'post_amount_input' is
-    called next.
-
-    :param message: telebot.types.Message object representing the message object
-    :param date_to_add: the date of the purchase
-    :type: object
-    :return: None
-    """
+def post_category_selection(message,date_to_add):
+    # print(message)
     chat_id = str(message.chat.id)
     try:
         selected_category = message.text
@@ -609,11 +656,9 @@ def post_category_selection(message, date_to_add):
         option[chat_id] = selected_category
         message = bot.send_message(
             chat_id,
-            "How much did you spend on {}? \n(Enter numeric values only)".format(
-                str(option[chat_id])
-            ),
-        )
-        bot.register_next_step_handler(message, post_amount_input, date_to_add)
+            "Please add a note for this transaction"
+            )
+        bot.register_next_step_handler(message, post_notes_input, date_to_add,selected_category)
     except Exception as ex:
         bot.reply_to(message, "Oh no! " + str(ex))
         display_text = ""
@@ -628,7 +673,48 @@ def post_category_selection(message, date_to_add):
         bot.send_message(chat_id, display_text)
 
 
-def post_amount_input(message, date_of_entry):
+def post_notes_input(message, date_to_add,selected_category):
+    """
+    Receives the category selected by the user and then asks for the amount spend. If an invalid category is given,
+    an error message is displayed followed by command list. IF the category given is valid, 'post_amount_input' is
+    called next.
+
+    :param message: telebot.types.Message object representing the message object
+    :param date_to_add: the date of the purchase
+    :type: object
+    :return: None
+    """
+    # print(message)
+    chat_id = str(message.chat.id)
+    try:
+        notes = message.text
+        #notes = user_list[chat_id].notes
+
+        option[chat_id] = selected_category
+        message = bot.send_message(
+            chat_id,
+            "How much did you spend on {}? \n(Enter numeric values only)".format(
+                str(option[chat_id])
+            ),
+        )
+        bot.register_next_step_handler(message, post_amount_input, date_to_add, notes)
+    except Exception as ex:
+        bot.reply_to(message, "Oh no! " + str(ex))
+        display_text = ""
+        for (
+                c
+        ) in (
+                commands
+        ):  # generate help text out of the commands dictionary defined at the top
+            display_text += "/" + c + ": "
+            display_text += commands[c] + "\n"
+        bot.send_message(chat_id, "Please select a menu option from below:")
+        bot.send_message(chat_id, display_text)
+
+
+
+
+def post_amount_input(message, date_of_entry,notes):
     """
     Receives the amount entered by the user and then adds to transaction history. An error is displayed if the entered
      amount is zero. Else, a message is shown that the transaction has been added.
@@ -638,6 +724,7 @@ def post_amount_input(message, date_of_entry):
     :type: object
     :return: None
     """
+    # print(message)
     try:
         chat_id = str(message.chat.id)
         amount_entered = message.text
@@ -649,14 +736,14 @@ def post_amount_input(message, date_of_entry):
         for c in expense_category:
             markup.add(c)
         bot.send_message(chat_id, "Select whether it's individual or group expense", reply_markup=markup)
-        bot.register_next_step_handler(message, post_expense_category_selection, date_of_entry, amount_value)
+        bot.register_next_step_handler(message, post_expense_category_selection, date_of_entry, amount_value,notes)
     except Exception as ex:
         print("Exception occurred : ")
         logger.error(str(ex), exc_info=True)
         bot.reply_to(message, "Processing Failed - \nError : " + str(ex))
 
 
-def post_expense_category_selection(message, date_of_entry, amount_value):
+def post_expense_category_selection(message, date_of_entry, amount_value,notes):
     """
     Receives the expense type entered by the user and then Checks if it is Personal or Shared expense. 
     If it is a personal expense then the expense is added to the total_value.
@@ -668,6 +755,7 @@ def post_expense_category_selection(message, date_of_entry, amount_value):
     :type: object
     :return: None
     """
+    # print(message)
     try:
         chat_id = str(message.chat.id)
         expense_category = message.text
@@ -681,11 +769,11 @@ def post_expense_category_selection(message, date_of_entry, amount_value):
                 format(amount_value, ".2f"),
             )
             user_list[chat_id].add_transaction(
-                date_of_entry, option[chat_id], amount_value, chat_id
+                date_of_entry, option[chat_id], amount_value, notes , chat_id 
             )
             total_value = user_list[chat_id].monthly_total()
-            add_message = "The following expenditure has been recorded: You have spent ${} for {} on {}".format(
-                amount_str, category_str, date_str
+            add_message = "The following expenditure has been recorded: You have spent ${} for {} on {} with the note: {}".format(
+                amount_str, category_str, date_str, notes
             )
 
             if user_list[chat_id].monthly_budget > 0:
@@ -711,7 +799,7 @@ def post_expense_category_selection(message, date_of_entry, amount_value):
             bot.send_message(chat_id, add_message)
         elif expense_category == "Shared":
             bot.send_message(chat_id, "Enter the number of people involved")
-            bot.register_next_step_handler(message, post_members_entry, date_of_entry, amount_value)
+            bot.register_next_step_handler(message, post_members_entry, date_of_entry, amount_value, notes)
         else:
             bot.send_message("Invalid Category!")
     except Exception as ex:
@@ -720,7 +808,8 @@ def post_expense_category_selection(message, date_of_entry, amount_value):
         bot.reply_to(message, "Processing Failed - \nError : " + str(ex))
 
 
-def post_members_entry(message, date_of_entry, amount_value):
+
+def post_members_entry(message, date_of_entry, amount_value, notes):
     """
     Receives the input number of people involved in the shared expense entered by the user and then divides with the amount_value. 
     This amount value now adds to the total value.
@@ -731,6 +820,7 @@ def post_members_entry(message, date_of_entry, amount_value):
     :type: object
     :return: None
     """
+    # print(message)
     try:
         chat_id = str(message.chat.id)
         members_involved = int(message.text)
@@ -744,12 +834,12 @@ def post_members_entry(message, date_of_entry, amount_value):
             format(amount_value, ".2f"),
         )
         user_list[chat_id].add_transaction(
-            date_of_entry, option[chat_id], amount_value, chat_id
+            date_of_entry, option[chat_id], amount_value, notes, chat_id
         )
         total_value = user_list[chat_id].monthly_total()
-        add_message = "The following expenditure has been recorded: You have spent ${} for {} on {} on {} {} {}".format(
+        add_message = "The following expenditure has been recorded: You have spent ${} for {} on {} on {} {} {} with the note: ".format(
             amount_str, category_str, date_str, total_value, user_list[chat_id].monthly_budget,
-            user_list[chat_id].monthly_savings,
+            user_list[chat_id].monthly_savings, notes
         )
 
         if user_list[chat_id].monthly_budget > 0:
@@ -1104,7 +1194,7 @@ def show_history(message):
         user = user_list[chat_id]
         spend_total_str = ""
         count = 0
-        table = [["Category", "Date", "Amount in $", "Amount in Rs."]]
+        table = [["Date", "Category", "Amount in $", "Notes" ]]
         if chat_id not in list(user_list.keys()):
             raise Exception("Sorry! No spending records found!")
         if len(user_list[chat_id].transactions) == 0:
@@ -1112,10 +1202,12 @@ def show_history(message):
         else:
             for category in user_list[chat_id].transactions.keys():
                 for transaction in user_list[chat_id].transactions[category]:
+                    # print(transaction)
                     count = count + 1
                     date = transaction["Date"].strftime("%m/%d/%y")
                     value = format(transaction["Value"], ".2f")
-                    table.append([date, category, "$ " + value])
+                    notes = transaction["Notes"]
+                    table.append([date, category, "$ " + value, notes])
             recurringTransactions = user.recurring_transactions()
             for transaction in recurringTransactions:
                 start_date = transaction["StartDate"]
