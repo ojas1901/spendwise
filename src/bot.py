@@ -42,7 +42,7 @@ commands = {
     "menu": "Display this menu",
     "addRecurring": "Recording/ Adding a new recurring expense",
     "addMember":"Add a new member in the group",
-    "memberList": "Shows the list of all the menbers in the group",
+    "memberList": "Shows the list of all the members in the group",
     "showRecurringTransactions": "Display all the recurring transactions",
     "displayUpcomingTransactions": "Display upcoming transactions",
     "add": "Record/Add a new spending",
@@ -60,6 +60,7 @@ commands = {
     "download": "Download your history",
     "displayDifferentCurrency": "Display the sum of expenditures for the current day/month in another currency",
     "sendEmail": "Send an email with an attachment showing your history",
+    "sendBill":"Send bill attachments via email",
     "addSavingsGoal": "Record your target spending",
     "joke": "Random jokes",
     "register": "Add your details",
@@ -1354,6 +1355,62 @@ def acceptEmailId(message):
         bot.send_message(message.chat.id, 'incorrect email')
 
 
+@bot.message_handler(commands=["sendBill"])
+def send_bill(message):
+    """
+    This function email the bill information to the members for the splitting function
+
+    :param message: telebot.types.Message object representing the message object
+    :type: object
+    :return: None
+    """
+    try:
+        chat_id = str(message.chat.id)
+       
+
+        if chat_id not in list(user_list.keys()) or len(user_list.get(chat_id, []).transactions) == 0:
+            raise Exception("Sorry! No spending records found!")
+        else:
+            for mem, value in user_list[chat_id].members.items():
+                string = ""
+                bills = user_list[chat_id].members[mem][1]
+                for bill_name in bills.keys():
+                    if bill_name != "total":
+                        string += f"{bill_name}: ${bills[bill_name]}\n"
+                string += "\n"
+                string += user_list[chat_id].get_description(mem)
+                mail_content = (
+                    "Hello, \n\n"
+                    + "This email contains your billing statements. \n\n"
+                    + f"{string} \n"
+                    + "Thanks!"
+                )
+
+                sender_address = 'spendwisebot@gmail.com'
+                sender_pass = 'jcxpkqdodrysphhy'
+                receiver_address = value[0]
+
+                text = MIMEMultipart()
+                text["From"] = sender_address
+                text["To"] = receiver_address
+                text["Subject"] = "Billing document"
+                text.attach(MIMEText(mail_content, "plain"))
+
+                session = smtplib.SMTP("smtp.gmail.com", 587)  # use gmail with port
+                session.starttls()  # enable security
+                session.login(
+                    sender_address, sender_pass
+                )  # login with mail_id and password
+                text = text.as_string()
+                session.sendmail(sender_address, receiver_address, text)
+                session.quit()
+            bot.send_message(message.chat.id, "Successfully emailed to all the memebers! ")
+
+    except Exception as ex:
+        logger.error(str(ex), exc_info=True)
+        bot.reply_to(message, str(ex))
+
+
 @bot.message_handler(commands=["display"])
 def command_display(message):
     """
@@ -2427,13 +2484,12 @@ def resolve_command(transcript: str, message):
     else:
         bot.reply_to(message, "Sorry couldn't get you. Please try again")
 
-
 if __name__ == "__main__":
     try:
         user_list = get_users()
         bot.polling(none_stop=True)
-    except Exception as e:
+    except Exception as ex:
         # Connection will be timed out with the set time interval - 3
         time.sleep(3)
         print("Exception occurred while processing : ")
-        logger.error(str(e), exc_info=True)
+        logger.error(str(ex), exc_info=True)
