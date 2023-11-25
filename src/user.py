@@ -36,6 +36,7 @@ class User:
         self.edit_category = {}
         self.monthly_budget = 0
         self.monthly_savings = 0
+        self.monthly_income = 0
         self.name = ""
         self.email = ""
         self.rules = {}
@@ -216,7 +217,7 @@ class User:
             logger.error(str(e), exc_info=True)
 
 
-    def add_transaction(self, date, category, value, userid):
+    def add_transaction(self, date, category, value, note, userid):
         """
         Stores the transaction to file.
 
@@ -231,7 +232,7 @@ class User:
         :return: None
         """
         try:
-            self.transactions[category].append({"Date": date, "Value": value})
+            self.transactions[category].append({"Date": date, "Value": value, "Notes":note})
             self.save_user(userid)
 
         except Exception as e:
@@ -435,6 +436,25 @@ class User:
 
         except Exception as e:
             logger.error(str(e), exc_info=True)
+
+
+    def add_monthly_income(self, amount, userid):
+        """
+        Given amount and userid, edit the income of the current user
+
+        :param amount: income amount
+        :param userid:
+        :return: None
+        """
+        try:
+            if amount != 0:
+                self.monthly_income = amount
+                self.save_user(userid)
+
+        except Exception as e:
+            logger.error(str(e), exc_info=True)
+
+    
     def add_user_name(self, name, userid):
         """
         Given amount and userid, edit the budget of the current user

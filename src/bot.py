@@ -32,17 +32,20 @@ sys.path.append("C:\\Users\\vighn\\OneDrive\\Desktop\\SE proj 3\\spendwise\\")
 #     from src.user import User
 # except:
 
+
 from user import User
 
 #api_token = os.environ["API_TOKEN"]
 # api_token = "6716767446:AAGxIF6hRW75UZKMI-4uJQBbRRMuhM7XVdA"
 api_token="6463675053:AAGmI8gMiKrA8APL4Clv890-YvFA_wNajPE"
 
+
 commands = {
     "menu": "Display this menu",
     "addRecurring": "Recording/ Adding a new recurring expense",
+    "addTransactionsFromCSV": "Adding expenses by uploading a CSV file for bulk operations.",
     "addMember":"Add a new member in the group",
-    "memberList": "Shows the list of all the menbers in the group",
+    "memberList": "Shows the list of all the members in the group",
     "showRecurringTransactions": "Display all the recurring transactions",
     "displayUpcomingTransactions": "Display upcoming transactions",
     "add": "Record/Add a new spending",
@@ -53,6 +56,7 @@ commands = {
     "splitBill": "Split a bill across members",
     "viewSplitBill": "View the bills has been splited",
     "budget": "Set budget for the month",
+    "income": "Add income for the month",
     "chart": "See your expenditure in different charts",
     "categoryAdd": "Add a new custom category",
     "categoryList": "List all categories",
@@ -60,6 +64,7 @@ commands = {
     "download": "Download your history",
     "displayDifferentCurrency": "Display the sum of expenditures for the current day/month in another currency",
     "sendEmail": "Send an email with an attachment showing your history",
+    "sendBill":"Send bill attachments via email",
     "addSavingsGoal": "Record your target spending",
     "joke": "Random jokes",
     "register": "Add your details",
@@ -359,6 +364,60 @@ def view_split_Bill(message):
     except Exception as ex:
         bot.reply_to(message, str(ex))
 
+@bot.message_handler(commands=["income"])
+def command_income(message):
+    """
+    Handles the commands 'income'. Gets input for income and stores it.
+
+    :param message: telebot.types.Message object representing the message object
+    :type: object
+    :return: None
+    """
+    chat_id = str(message.chat.id)
+    option.pop(chat_id, None)
+    if chat_id not in user_list.keys():
+        user_list[chat_id] = User(chat_id)
+    bot.send_message(
+        chat_id,
+        "Your current monthly income is {}".format(user_list[chat_id].monthly_income),
+    )
+    message = bot.send_message(
+        chat_id,
+        "Enter an amount to update your monthly income. \n(Enter numeric values only)",
+    )
+    bot.register_next_step_handler(message, post_income_input)
+
+
+def post_income_input(message):
+    """
+    Receives the amount entered by the user and then adds it to the monthly_income attribute of the user object. An
+    error is displayed if the entered amount is zero. Else, a message is shown that the income has been added. :param
+    message: telebot.types.Message object representing the message object.
+
+    :param message: telebot.types.Message object representing the message object
+    :type: object
+    :return: None
+    """
+    try:
+        chat_id = str(message.chat.id)
+        amount_entered = message.text
+        amount_value = user_list[chat_id].validate_entered_amount(
+            amount_entered
+        )  # validate
+        if amount_value == 0:  # cannot be $0 spending
+            raise Exception("Income amount has to be a positive number.")
+        user_list[chat_id].add_monthly_income(amount_value, chat_id)
+        bot.send_message(
+            chat_id,
+            "The income received for this month has been set as ${}".format(
+                format(amount_value, ".2f")
+            ),
+        )
+
+    except Exception as ex:
+        bot.reply_to(message, "Oh no. " + str(ex))
+
+
 @bot.message_handler(commands=["budget"])
 def command_budget(message):
     """
@@ -481,7 +540,6 @@ def get_new_member_email(message):
 
 @bot.message_handler(commands=["memberList"])
 def member_list(message):
-    
     try:
         chat_id = str(message.chat.id)
         if chat_id not in user_list.keys():
@@ -508,6 +566,7 @@ def member_list(message):
 
 @bot.message_handler(commands=["add"])
 def command_add(message):
+    # print(message)
     """
     Handles the command 'add'. Lists the categories from which the user can select. The function
     'post_category_selection' is called next. :param message: telebot.types.Message object representing the message
@@ -535,6 +594,7 @@ def is_add_callback(query):
     return query.data != "none" and "/" not in query.data
 
 
+
 @bot.callback_query_handler(func=is_add_callback, filter=None)
 def post_date_selection(message):
     """
@@ -543,6 +603,7 @@ def post_date_selection(message):
     :param message: the message sent after the user clicks a button
     :return: None
     """
+    # print(message)
     chat_id = str(message.message.chat.id)
     option.pop(chat_id, None)
 
@@ -570,6 +631,7 @@ def post_date_selection(message):
             )
             return
         spend_categories = user_list[chat_id].spend_categories
+        print(date_to_add)
         markup = types.ReplyKeyboardMarkup(one_time_keyboard=True)
         markup.row_width = 2
         for c in spend_categories:
@@ -582,18 +644,8 @@ def post_date_selection(message):
         logger.error(str(ex), exc_info=True)
         bot.reply_to(message.message, "Processing Failed - \nError : " + str(ex))
 
-
-def post_category_selection(message, date_to_add):
-    """
-    Receives the category selected by the user and then asks for the amount spend. If an invalid category is given,
-    an error message is displayed followed by command list. IF the category given is valid, 'post_amount_input' is
-    called next.
-
-    :param message: telebot.types.Message object representing the message object
-    :param date_to_add: the date of the purchase
-    :type: object
-    :return: None
-    """
+def post_category_selection(message,date_to_add):
+    # print(message)
     chat_id = str(message.chat.id)
     try:
         selected_category = message.text
@@ -609,11 +661,9 @@ def post_category_selection(message, date_to_add):
         option[chat_id] = selected_category
         message = bot.send_message(
             chat_id,
-            "How much did you spend on {}? \n(Enter numeric values only)".format(
-                str(option[chat_id])
-            ),
-        )
-        bot.register_next_step_handler(message, post_amount_input, date_to_add)
+            "Please add a note for this transaction"
+            )
+        bot.register_next_step_handler(message, post_notes_input, date_to_add,selected_category)
     except Exception as ex:
         bot.reply_to(message, "Oh no! " + str(ex))
         display_text = ""
@@ -628,7 +678,48 @@ def post_category_selection(message, date_to_add):
         bot.send_message(chat_id, display_text)
 
 
-def post_amount_input(message, date_of_entry):
+def post_notes_input(message, date_to_add,selected_category):
+    """
+    Receives the category selected by the user and then asks for the amount spend. If an invalid category is given,
+    an error message is displayed followed by command list. IF the category given is valid, 'post_amount_input' is
+    called next.
+
+    :param message: telebot.types.Message object representing the message object
+    :param date_to_add: the date of the purchase
+    :type: object
+    :return: None
+    """
+    # print(message)
+    chat_id = str(message.chat.id)
+    try:
+        notes = message.text
+        #notes = user_list[chat_id].notes
+
+        option[chat_id] = selected_category
+        message = bot.send_message(
+            chat_id,
+            "How much did you spend on {}? \n(Enter numeric values only)".format(
+                str(option[chat_id])
+            ),
+        )
+        bot.register_next_step_handler(message, post_amount_input, date_to_add, notes)
+    except Exception as ex:
+        bot.reply_to(message, "Oh no! " + str(ex))
+        display_text = ""
+        for (
+                c
+        ) in (
+                commands
+        ):  # generate help text out of the commands dictionary defined at the top
+            display_text += "/" + c + ": "
+            display_text += commands[c] + "\n"
+        bot.send_message(chat_id, "Please select a menu option from below:")
+        bot.send_message(chat_id, display_text)
+
+
+
+
+def post_amount_input(message, date_of_entry,notes):
     """
     Receives the amount entered by the user and then adds to transaction history. An error is displayed if the entered
      amount is zero. Else, a message is shown that the transaction has been added.
@@ -638,6 +729,7 @@ def post_amount_input(message, date_of_entry):
     :type: object
     :return: None
     """
+    # print(message)
     try:
         chat_id = str(message.chat.id)
         amount_entered = message.text
@@ -649,14 +741,14 @@ def post_amount_input(message, date_of_entry):
         for c in expense_category:
             markup.add(c)
         bot.send_message(chat_id, "Select whether it's individual or group expense", reply_markup=markup)
-        bot.register_next_step_handler(message, post_expense_category_selection, date_of_entry, amount_value)
+        bot.register_next_step_handler(message, post_expense_category_selection, date_of_entry, amount_value,notes)
     except Exception as ex:
         print("Exception occurred : ")
         logger.error(str(ex), exc_info=True)
         bot.reply_to(message, "Processing Failed - \nError : " + str(ex))
 
 
-def post_expense_category_selection(message, date_of_entry, amount_value):
+def post_expense_category_selection(message, date_of_entry, amount_value,notes):
     """
     Receives the expense type entered by the user and then Checks if it is Personal or Shared expense. 
     If it is a personal expense then the expense is added to the total_value.
@@ -668,6 +760,7 @@ def post_expense_category_selection(message, date_of_entry, amount_value):
     :type: object
     :return: None
     """
+    # print(message)
     try:
         chat_id = str(message.chat.id)
         expense_category = message.text
@@ -681,13 +774,14 @@ def post_expense_category_selection(message, date_of_entry, amount_value):
                 format(amount_value, ".2f"),
             )
             user_list[chat_id].add_transaction(
-                date_of_entry, option[chat_id], amount_value, chat_id
+                date_of_entry, option[chat_id], amount_value, notes , chat_id 
             )
+                print(date_of_entry)
+                print(date_str)
             total_value = user_list[chat_id].monthly_total()
-            add_message = "The following expenditure has been recorded: You have spent ${} for {} on {}".format(
-                amount_str, category_str, date_str
+            add_message = "The following expenditure has been recorded: You have spent ${} for {} on {} with the note: {}".format(
+                amount_str, category_str, date_str, notes
             )
-
             if user_list[chat_id].monthly_budget > 0:
                 if total_value > user_list[chat_id].monthly_budget:
                     bot.send_message(
@@ -711,7 +805,7 @@ def post_expense_category_selection(message, date_of_entry, amount_value):
             bot.send_message(chat_id, add_message)
         elif expense_category == "Shared":
             bot.send_message(chat_id, "Enter the number of people involved")
-            bot.register_next_step_handler(message, post_members_entry, date_of_entry, amount_value)
+            bot.register_next_step_handler(message, post_members_entry, date_of_entry, amount_value, notes)
         else:
             bot.send_message("Invalid Category!")
     except Exception as ex:
@@ -720,7 +814,8 @@ def post_expense_category_selection(message, date_of_entry, amount_value):
         bot.reply_to(message, "Processing Failed - \nError : " + str(ex))
 
 
-def post_members_entry(message, date_of_entry, amount_value):
+
+def post_members_entry(message, date_of_entry, amount_value, notes):
     """
     Receives the input number of people involved in the shared expense entered by the user and then divides with the amount_value. 
     This amount value now adds to the total value.
@@ -731,6 +826,7 @@ def post_members_entry(message, date_of_entry, amount_value):
     :type: object
     :return: None
     """
+    # print(message)
     try:
         chat_id = str(message.chat.id)
         members_involved = int(message.text)
@@ -744,12 +840,12 @@ def post_members_entry(message, date_of_entry, amount_value):
             format(amount_value, ".2f"),
         )
         user_list[chat_id].add_transaction(
-            date_of_entry, option[chat_id], amount_value, chat_id
+            date_of_entry, option[chat_id], amount_value, notes, chat_id
         )
         total_value = user_list[chat_id].monthly_total()
-        add_message = "The following expenditure has been recorded: You have spent ${} for {} on {} on {} {} {}".format(
+        add_message = "The following expenditure has been recorded: You have spent ${} for {} on {} on {} {} {} with the note: ".format(
             amount_str, category_str, date_str, total_value, user_list[chat_id].monthly_budget,
-            user_list[chat_id].monthly_savings,
+            user_list[chat_id].monthly_savings, notes
         )
 
         if user_list[chat_id].monthly_budget > 0:
@@ -816,6 +912,60 @@ def post_members_entry(message, date_of_entry, amount_value):
 #             value = row['Value']
 #             transactions.append({"Date": date, "Category": category, "Value": value})
 #     return transactions
+
+@bot.message_handler(commands=["addTransactionsFromCSV"])
+def handle_document(message):
+    bot.send_message(message.chat.id, "Please upload a CSV file. Format should be: category, date (mm-dd-yyyy), value, notes")
+    chat_id = str(message.chat.id)
+    print(user_list[chat_id])
+    bot.register_next_step_handler(message, handle_file)
+
+def handle_file(message):
+    chat_id = str(message.chat.id)
+    # print(message)
+    if message.document.mime_type == 'text/csv':
+        file_name = message.document.file_name
+        file_info = bot.get_file(message.document.file_id)
+        downloadedfile = bot.download_file(file_info.file_path)  # Download the file to the server
+        # Parse the CSV file
+        try:
+            with open(file_name, 'wb') as new_file:
+                new_file.write(downloadedfile)
+            #data should be in {'Food': [], 'Groceries': [{'Date': datetime.datetime(2023, 11, 7, 0, 0), 'Value': 23.0}], 'Utilities': [{'Date': datetime.datetime(2023, 11, 16, 0, 0), 'Value': 18.666666666666668}], 'Transport': [], 'Shopping': [], 'Miscellaneous': []} in this format
+            # Category, date, value
+            categories = ['Food','Groceries','Utilities','Transport','Shopping']
+            with open(file_name, 'r', encoding='utf-8') as csv_file:
+                csv_reader = csv.reader(csv_file)
+                next(csv_reader)
+                rows = []
+                for row in csv_reader:
+                    print("row", row)
+                    rows.append(', '.join(row))  # Store each row
+                    date = datetime.strptime(row[1], '%m-%d-%Y')
+                    value= float(row[2])
+                    note=row[3]
+                    datevalue={'Date':date,'Value':value,'Notes':note}
+                    print("datevalue",datevalue)
+                    #define date value list
+                    if (row[0] in categories):
+                        (user_list[chat_id].transactions)[row[0]].append(datevalue)
+                        print("added in", row[0])
+                    else:
+                        #if unrecognized category then appends to miscellaneous category
+                        (user_list[chat_id].transactions)['Miscellaneous'].append(datevalue)
+                        print("added in miscellaneous")
+                # parsed_data = '\n'.join(rows)  # Join rows with newline
+                # bot.send_message(chat_id, parsed_data)  # Send parsed data back to user
+                bot.send_message(chat_id, 'Added transations successfully') 
+                print(user_list[chat_id].transactions)
+        except Exception as e:
+            bot.send_message(chat_id, f"Error: {e}")
+    else:
+        bot.send_message(chat_id, "Please upload a valid CSV file.")
+        #transactions dict me loop laga, category se dhund in user_list[chat_id].transactions, fir datetime lib se string to the printed format convert kar, value add kar(float me daal)
+        #send_message(transactions added)
+
+        
 
 @bot.message_handler(commands=["addRecurring"])
 def command_addRecurring(message):
@@ -1104,7 +1254,7 @@ def show_history(message):
         user = user_list[chat_id]
         spend_total_str = ""
         count = 0
-        table = [["Category", "Date", "Amount in $", "Amount in Rs."]]
+        table = [["Date", "Category", "Amount in $", "Notes" ]]
         if chat_id not in list(user_list.keys()):
             raise Exception("Sorry! No spending records found!")
         if len(user_list[chat_id].transactions) == 0:
@@ -1112,10 +1262,12 @@ def show_history(message):
         else:
             for category in user_list[chat_id].transactions.keys():
                 for transaction in user_list[chat_id].transactions[category]:
+                    # print(transaction)
                     count = count + 1
                     date = transaction["Date"].strftime("%m/%d/%y")
                     value = format(transaction["Value"], ".2f")
-                    table.append([date, category, "$ " + value])
+                    notes = transaction["Notes"]
+                    table.append([date, category, "$ " + value, notes])
             recurringTransactions = user.recurring_transactions()
             for transaction in recurringTransactions:
                 start_date = transaction["StartDate"]
@@ -1352,6 +1504,62 @@ def acceptEmailId(message):
             bot.reply_to(message, str(ex))
     else:
         bot.send_message(message.chat.id, 'incorrect email')
+
+
+@bot.message_handler(commands=["sendBill"])
+def send_bill(message):
+    """
+    This function email the bill information to the members for the splitting function
+
+    :param message: telebot.types.Message object representing the message object
+    :type: object
+    :return: None
+    """
+    try:
+        chat_id = str(message.chat.id)
+       
+
+        if chat_id not in list(user_list.keys()) or len(user_list.get(chat_id, []).transactions) == 0:
+            raise Exception("Sorry! No spending records found!")
+        else:
+            for mem, value in user_list[chat_id].members.items():
+                string = ""
+                bills = user_list[chat_id].members[mem][1]
+                for bill_name in bills.keys():
+                    if bill_name != "total":
+                        string += f"{bill_name}: ${bills[bill_name]}\n"
+                string += "\n"
+                string += user_list[chat_id].get_description(mem)
+                mail_content = (
+                    "Hello, \n\n"
+                    + "This email contains your billing statements. \n\n"
+                    + f"{string} \n"
+                    + "Thanks!"
+                )
+
+                sender_address = 'spendwisebot@gmail.com'
+                sender_pass = 'jcxpkqdodrysphhy'
+                receiver_address = value[0]
+
+                text = MIMEMultipart()
+                text["From"] = sender_address
+                text["To"] = receiver_address
+                text["Subject"] = "Billing document"
+                text.attach(MIMEText(mail_content, "plain"))
+
+                session = smtplib.SMTP("smtp.gmail.com", 587)  # use gmail with port
+                session.starttls()  # enable security
+                session.login(
+                    sender_address, sender_pass
+                )  # login with mail_id and password
+                text = text.as_string()
+                session.sendmail(sender_address, receiver_address, text)
+                session.quit()
+            bot.send_message(message.chat.id, "Successfully emailed to all the memebers! ")
+
+    except Exception as ex:
+        logger.error(str(ex), exc_info=True)
+        bot.reply_to(message, str(ex))
 
 
 @bot.message_handler(commands=["display"])
@@ -1684,85 +1892,123 @@ def edit_cost(message):
         return
 
 
-@bot.message_handler(content_types=["document"])
-def handle_budget_document_csv(message):
-    """
-    This function is called if the user inputs a csv file that contains their budget in a csv format with column names
-    date, description, and debit. The function reads the csv file and then for transactions that the bot does not
-    know how to categorize, it sends a message to the user asking how they would like for that transaction to be categorized.
+# @bot.message_handler(content_types=["document"])
+# def handle_budget_document_csv(message):
+#     """
+#     This function is called if the user inputs a csv file that contains their budget in a csv format with column names
+#     date, description, and debit. The function reads the csv file and then for transactions that the bot does not
+#     know how to categorize, it sends a message to the user asking how they would like for that transaction to be categorized.
 
-    :param message: telebot.types.Message object representing the message object
-    :type: object
-    :return: None
-    """
-    try:
-        chat_id = str(message.chat.id)
-        file_info = bot.get_file(message.document.file_id)
-        download_file = bot.download_file(file_info.file_path)
-        with open("data/{}_spending.csv".format(chat_id), mode="wb") as f:
-            f.write(download_file)
-        unknown_spending = user_list[chat_id].read_budget_csv(
-            "data/{}_spending.csv".format(chat_id), chat_id
-        )
-        for _, row in unknown_spending.iterrows():
-            text = "How do you want to categorize the following transaction \n"
-            text += "Date: {}. Description: {}. Debit: {}. \n".format(
-                row["date"], row["description"], row["debit"]
-            )
-            buttons = telebot.types.InlineKeyboardMarkup(row_width=3)
-            for category in user_list[chat_id].spend_categories:
-                callback = "{},{},{},{}".format(
-                    category, row["date"], row["debit"], row["description"]
-                )
-                buttons.add(
-                    telebot.types.InlineKeyboardButton(category, callback_data=callback)
-                )
-            bot.send_message(chat_id, text, reply_markup=buttons)
+#     :param message: telebot.types.Message object representing the message object
+#     :type: object
+#     :return: None
+#     """
+#     try:
+#         chat_id = str(message.chat.id)
+#         file_info = bot.get_file(message.document.file_id)
+#         download_file = bot.download_file(file_info.file_path)
+#         with open("data/{}_spending.csv".format(chat_id), mode="wb") as f:
+#             f.write(download_file)
+#         unknown_spending = user_list[chat_id].read_budget_csv(
+#             "data/{}_spending.csv".format(chat_id), chat_id
+#         )
+#         for _, row in unknown_spending.iterrows():
+#             text = "How do you want to categorize the following transaction \n"
+#             text += "Date: {}. Description: {}. Debit: {}. \n".format(
+#                 row["date"], row["description"], row["debit"]
+#             )
+#             print(text)
+#             buttons = telebot.types.InlineKeyboardMarkup(row_width=3)
+#             for category in user_list[chat_id].spend_categories:
+#                 callback = "{},{},{},{}".format(
+#                     category, row["date"], row["debit"], row["description"]
+#                 )
+#                 buttons.add(
+#                     telebot.types.InlineKeyboardButton(category, callback_data=callback)
+#                 )
+#             bot.send_message(chat_id, text, reply_markup=buttons)
+#     except Exception as ex:
+#         print("Exception occurred : ")
+#         logger.error(str(ex), exc_info=True)
+#         bot.reply_to(message, "Processing Failed - Error: " + str(ex))
 
-    except Exception as ex:
-        print("Exception occurred : ")
-        logger.error(str(ex), exc_info=True)
-        bot.reply_to(message, "Processing Failed - Error: " + str(ex))
+# def handle_transaction_document_csv(message):
+#     """
+#     This function is called if the user inputs a csv file that contains their budget in a csv format with column names
+#     date, description, and debit. The function reads the csv file and then for transactions that the bot does not
+#     know how to categorize, it sends a message to the user asking how they would like for that transaction to be categorized.
+
+#     :param message: telebot.types.Message object representing the message object
+#     :type: object
+#     :return: None
+#     """
+#     try:
+#         chat_id = str(message.chat.id)
+#         file_info = bot.get_file(message.document.file_id)
+#         download_file = bot.download_file(file_info.file_path)
+#         with open("data/{}_spending.csv".format(chat_id), mode="wb") as f:
+#             f.write(download_file)
+#         unknown_spending = user_list[chat_id].read_budget_csv(
+#             "data/{}_spending.csv".format(chat_id), chat_id
+#         )
+#         for _, row in unknown_spending.iterrows():
+#             text = "How do you want to categorize the following transaction \n"
+#             text += "Date: {}. Description: {}. Debit: {}. \n".format(
+#                 row["date"], row["description"], row["debit"]
+#             )
+#             buttons = telebot.types.InlineKeyboardMarkup(row_width=3)
+#             for category in user_list[chat_id].spend_categories:
+#                 callback = "{},{},{},{}".format(
+#                     category, row["date"], row["debit"], row["description"]
+#                 )
+#                 buttons.add(
+#                     telebot.types.InlineKeyboardButton(category, callback_data=callback)
+#                 )
+#             bot.send_message(chat_id, text, reply_markup=buttons)
+#     except Exception as ex:
+#             print("Exception occurred : ")
+#             logger.error(str(ex), exc_info=True)
+#             bot.reply_to(message, "Processing Failed - Error: " + str(ex))
 
 
-def is_csv_callback(query):
-    """
-    Callback to identify if the button pressed was from the csv function
+# def is_csv_callback(query):
+#     """
+#     Callback to identify if the button pressed was from the csv function
 
-    :param query: the button pressed
-    :return: if the button pressed relates to the csv
-    """
-    return "," in query.data
+#     :param query: the button pressed
+#     :return: if the button pressed relates to the csv
+#     """
+#     return "," in query.data
 
 
-@bot.callback_query_handler(func=is_csv_callback)
-def csv_callback(call):
-    """
-    This function is used to handle the callback with the data received from the user pressing a category option
-    for the transactions that the bot read from the csv file but did not know how to categorize.The callback object
-    contains the category the user choose for that particular transaction.
+# @bot.callback_query_handler(func=is_csv_callback)
+# def csv_callback(call):
+#     """
+#     This function is used to handle the callback with the data received from the user pressing a category option
+#     for the transactions that the bot read from the csv file but did not know how to categorize.The callback object
+#     contains the category the user choose for that particular transaction.
 
-    :param call: telegram.CallbackQuery representing the callback object
-    :type: object
-    :return: None
-    """
-    try:
-        data = call.data.split(",")
-        category = data[0]
-        date = datetime.strptime(data[1], "%m/%d/%y")
-        debit = float(data[2])
-        description = data[3]
-        chat_id = str(call.from_user.id)
-        user_list[chat_id].create_rules_and_add_unknown_spending(
-            category, description, date, debit, chat_id
-        )
-        bot.delete_message(
-            chat_id=call.from_user.id, message_id=call.message.message_id
-        )
-    except Exception as ex:
-        print("Exception occurred : ")
-        logger.error(str(ex), exc_info=True)
-        bot.send_message(call.from_user.id, "Processing Failed - Error: " + str(ex))
+#     :param call: telegram.CallbackQuery representing the callback object
+#     :type: object
+#     :return: None
+#     """
+#     try:
+#         data = call.data.split(",")
+#         category = data[0]
+#         date = datetime.strptime(data[1], "%m/%d/%y")
+#         debit = float(data[2])
+#         description = data[3]
+#         chat_id = str(call.from_user.id)
+#         user_list[chat_id].create_rules_and_add_unknown_spending(
+#             category, description, date, debit, chat_id
+#         )
+#         bot.delete_message(
+#             chat_id=call.from_user.id, message_id=call.message.message_id
+#         )
+#     except Exception as ex:
+#         print("Exception occurred : ")
+#         logger.error(str(ex), exc_info=True)
+#         bot.send_message(call.from_user.id, "Processing Failed - Error: " + str(ex))
 
 
 @bot.message_handler(commands=["categoryAdd"])
@@ -2427,13 +2673,12 @@ def resolve_command(transcript: str, message):
     else:
         bot.reply_to(message, "Sorry couldn't get you. Please try again")
 
-
 if __name__ == "__main__":
     try:
         user_list = get_users()
         bot.polling(none_stop=True)
-    except Exception as e:
+    except Exception as ex:
         # Connection will be timed out with the set time interval - 3
         time.sleep(3)
         print("Exception occurred while processing : ")
-        logger.error(str(e), exc_info=True)
+        logger.error(str(ex), exc_info=True)
