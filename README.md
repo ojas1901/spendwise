@@ -120,6 +120,29 @@ Make sure you export the PYTHONPATH variable to the main project folder
 
 For more info on deployment(Heroku), check out the doc [here](https://github.com/mtkumar123/MyDollarBot/blob/main/CONTRIBUTING.md#more-tips-for-developers)
 
+## Speech To Text setup
+In order to use speech to text you need to setup google cloud and enable speech to text API from within the console. Below
+are the detailed steps.
+1. Go to `https://console.cloud.google.com` and create an account
+2. Create a new project in google cloud console and select the project 
+3. From the home page select `APIs and Services`
+4. Select `Enable APIS and Services` on the top
+5. Search for `speech for text` in the search box
+6. Select `Cloud Speech-To-Text API` from search results
+7. Click on `Enable` button
+8. Click `Enable Billing` and follow the on screen instructions
+9. Now from the navigation menu select `APIs and Services` and select `Credentials`
+10. Click on `Create Credential` and chose `Service Account`
+11. Add `Service Account Name` and click on create and continue
+12. Now in the `Select a role` dropdown select `Basic` and then `Owner`
+13. Click on `Done`
+14. Now go back to `Credential` and select the service account you created under the service account list
+15. Go to the `Keys` tab and click on `Add Key`
+16. Click on `Create New Key`
+17. Select `json` as key type and save the json file it generates
+18. Rename the json file as `service_account.json` and copy it inside `/src` directory (The same place where bot.py exists) 
+
+Now we are all done with the google speech to text api
 
 ## 💻For testing with Pytest
 1. Some modules in testing require CHAT_ID environment variable to be set.
