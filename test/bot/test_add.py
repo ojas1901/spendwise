@@ -4,9 +4,10 @@ Tests add command
 import time
 import unittest
 import sys
+
 sys.path.append(r"C:\\Users\\manid\\Desktop\\SE_Project\\spendwise")
 print(sys.path)
-from src import bot
+from src import bot, util
 from bot_utils import BotTest
 
 
@@ -45,7 +46,7 @@ class TestAdd(BotTest):
         # there should not be any exceptions
         assert self.bot.worker_pool.exception_info is None
 
-	# send the category we use
+        # send the category we use
         reply = self.create_text_message(self.user.spend_categories[0])
         self.bot.process_new_messages([reply])
         time.sleep(3)
@@ -71,7 +72,7 @@ class TestAdd(BotTest):
         # there should not be any exceptions
         assert self.bot.worker_pool.exception_info is None
 
-	# send the amount
+        # send the amount
         reply = self.create_text_message("1.00")
         self.bot.process_new_messages([reply])
         time.sleep(3)
@@ -86,7 +87,6 @@ class TestAdd(BotTest):
 
         # there should not be any records added
         assert bot.user_list[str(msg.chat.id)].get_number_of_transactions() == 0
-
 
     def test_add_wrong_date(self):
         """
@@ -180,7 +180,6 @@ class TestAdd(BotTest):
         # there should not be any records added
         assert bot.user_list[str(msg.chat.id)].get_number_of_transactions() == 0
 
-
     def test_add_wrong_num(self):
         """
         Tests the add command with an invalid value
@@ -239,6 +238,7 @@ class TestAdd(BotTest):
 
         # there should not be any records added
         assert bot.user_list[str(msg.chat.id)].get_number_of_transactions() == 0
+
 
 if __name__ == '__main__':
     unittest.main()
