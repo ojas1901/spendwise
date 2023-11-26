@@ -474,6 +474,12 @@ def post_budget_input(message):
 
 @bot.message_handler(commands=["addMember"])
 def add_member(message):
+    """"
+   This function is the start point of addMember functionality. It receives the member name and 'get_new_member' is called.
+    :param message: telebot.types.Message object representing the message object
+    :type: object
+    :return: None
+    """
     try:
         chat_id=str(message.chat.id)
         # print(user_list)
@@ -498,6 +504,14 @@ def add_member(message):
 
 def get_new_member_name(message):
 
+    """"
+  It receives the member email id and 'get_new_member_email' is called.
+
+    :param message: telebot.types.Message object representing the message object
+    :type: object
+    :return: None
+    """
+
     try:
        chat_id=str(message.chat.id)
        memberName=message.text.strip()
@@ -521,6 +535,14 @@ def get_new_member_name(message):
 
 def get_new_member_email(message):
 
+    """"
+    It receives the member email id and the member will get added.
+
+    :param message: telebot.types.Message object representing the message object
+    :type: object
+    :return: None
+    """
+
     try:
         chat_id=str(message.chat.id)
         memberEmail = message.text.strip()
@@ -540,6 +562,15 @@ def get_new_member_email(message):
 
 @bot.message_handler(commands=["memberList"])
 def member_list(message):
+
+    """"
+    This function will get us all the member names currently in the group.
+
+    :param message: telebot.types.Message object representing the message object
+    :type: object
+    :return: None
+    """
+    
     try:
         chat_id = str(message.chat.id)
         if chat_id not in user_list.keys():
@@ -1479,11 +1510,12 @@ def acceptEmailId(message):
 @bot.message_handler(commands=["sendBill"])
 def send_bill(message):
     """
-    This function email the bill information to the members for the splitting function
+    This function will email the billing description to all the members after splitting the bill
 
     :param message: telebot.types.Message object representing the message object
     :type: object
     :return: None
+
     """
     try:
         chat_id = str(message.chat.id)
