@@ -49,12 +49,12 @@ class TestAddUserRecord(BaseCase):
         # adding one record
         transaction = self.create_transaction()
         date = datetime.today()
-        record = {"Date": date, "Value": 10.00}
+        record = {"Date": date, "Value": 10.00, "Notes": "Sample Note"}
         transaction[self.user.spend_categories[0]].append(record)
         for category in transaction:
             # for each record to add
             for record in transaction[category]:
-                self.user.add_transaction(record['Date'], category, record['Value'], 1)
+                self.user.add_transaction(record['Date'], category, record['Value'], record["Notes"], 1)
         # validating the list
         message = self.validate_user_list(transaction)
         if message != "":
@@ -69,13 +69,13 @@ class TestAddUserRecord(BaseCase):
         # adding one record
         transaction = self.create_transaction()
         date = datetime.today()
-        records = [{"Date": date, "Value": 10.00}, {"Date": date, "Value": 15.00}]
+        records = [{"Date": date, "Value": 10.00, "Notes": "Sample Note"}, {"Date": date, "Value": 15.00, "Notes": "Sample Note"}]
         for record in records:
             transaction[self.user.spend_categories[0]].append(record)
         for category in transaction:
             # for each record to add
             for record in transaction[category]:
-                self.user.add_transaction(record['Date'], category, record['Value'], 1)
+                self.user.add_transaction(record['Date'], category, record['Value'], record["Notes"], 1)
         # validating the list
         message = self.validate_user_list(transaction)
         if message != "":
@@ -91,12 +91,12 @@ class TestAddUserRecord(BaseCase):
         # adding one record
         transaction = self.create_transaction()
         date = datetime.today()
-        transaction[self.user.spend_categories[0]].append({"Date": date, "Value": 10.00})
-        transaction[self.user.spend_categories[1]].append({"Date": date, "Value": 150.00})
+        transaction[self.user.spend_categories[0]].append({"Date": date, "Value": 10.00, "Notes": "Sample Note"})
+        transaction[self.user.spend_categories[1]].append({"Date": date, "Value": 150.00, "Notes": "Sample Note"})
         for category in transaction:
             # for each record to add
             for record in transaction[category]:
-                self.user.add_transaction(record['Date'], category, record['Value'], 1)
+                self.user.add_transaction(record['Date'], category, record['Value'], record["Notes"], 1)
         # validating the list
         message = self.validate_user_list(transaction)
         if message != "":
