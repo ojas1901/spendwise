@@ -776,8 +776,8 @@ def post_expense_category_selection(message, date_of_entry, amount_value,notes):
             user_list[chat_id].add_transaction(
                 date_of_entry, option[chat_id], amount_value, notes , chat_id 
             )
-                print(date_of_entry)
-                print(date_str)
+            print(date_of_entry)
+            print(date_str)
             total_value = user_list[chat_id].monthly_total()
             add_message = "The following expenditure has been recorded: You have spent ${} for {} on {} with the note: {}".format(
                 amount_str, category_str, date_str, notes
@@ -2670,6 +2670,18 @@ def resolve_command(transcript: str, message):
         command_register(message)
     elif curr_best_guess == "exportCSV":
         command_export_csv(message)
+    elif curr_best_guess == "addMember":
+        add_member(message)
+    elif curr_best_guess == "memberList":
+        member_list(message)
+    elif curr_best_guess == "splitBill":
+        split_Bill(message)
+    elif curr_best_guess == "viewSplitBill":
+        view_split_Bill(message)
+    elif curr_best_guess == "income":
+        command_income(message)
+    elif curr_best_guess == "addTransactionsFromCSV":
+        handle_document(message)
     else:
         bot.reply_to(message, "Sorry couldn't get you. Please try again")
 
