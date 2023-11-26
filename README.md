@@ -176,6 +176,59 @@ I want to add the expenses based on personal or shared category
 5. Type the expenditure category "Personal" or "Shared"
 6. The amount will be added to the total value
 
+### addMember
+
+I want to add all the members in a group
+
+<p align="center"><img width="700" src="./docs/workflows/addMember.gif"></p>
+
+1. Enter the `/addMember` command
+2. Enter the member name
+3. Enter the member email address
+4. Member will be added to the group
+
+### memberList
+
+I want to view all the members present in the group
+
+<p align="center"><img width="700" src="./docs/workflows/memberList.gif"></p>
+
+1. Enter the `/memberList` command
+2. List of all the members will be visible
+
+### splitBill
+
+I want to split the bill accross all the members
+
+<p align="center"><img width="700" src="./docs/workflows/splitBill.gif"></p>
+
+1. Enter the `/splitBill` command
+2. Enter the bill name
+3. Enter the bill amount
+4. Type/choose a bill creditor
+5. Type/choose a bill debator
+6. Type/choose 'There are no more debators'
+
+### viewSplitBill
+
+I want to view the bill which was splitted
+
+<p align="center"><img width="700" src="./docs/workflows/viewSplitBill.gif"></p>
+
+1. Enter the `/viewSplitBill` command
+2. You will get a description about the bill splitted
+
+### sendBill
+
+I want to get the description of the bill splitted in a mail
+
+<p align="center"><img width="700" src="./docs/workflows/sendBill.gif"></p>
+
+1. Enter the `/sendBill` command
+2. You will get a description about the bill splitted in a mail
+
+
+
 ### Add Recurring
 
 I want to add the repetitive transactions
