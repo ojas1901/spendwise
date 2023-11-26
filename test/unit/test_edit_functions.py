@@ -19,8 +19,9 @@ class TestAddUserRecord(BaseCase):
         user_category = "Food"
         user_value = 10.00
         userid = "33"
-        self.user.add_transaction(user_date, user_category, user_value, userid)
-        transaction = {"Date": user_date, "Value": user_value}
+        note = "Sample Note"
+        self.user.add_transaction(user_date, user_category, user_value, note, userid)
+        transaction = {"Date": user_date, "Value": user_value, "Notes": "sample note"}
         self.user.store_edit_transaction(transaction, user_category)
         assert transaction == self.user.edit_transactions
         assert user_category == self.user.edit_category
@@ -32,8 +33,9 @@ class TestAddUserRecord(BaseCase):
         user_category = "Groceries"
         user_value = 10.00
         userid = "33"
-        self.user.add_transaction(user_date, user_category, user_value, userid)
-        transaction = {"Date": user_date, "Value": user_value}
+        note = "sample note"
+        self.user.add_transaction(user_date, user_category, user_value, note, userid)
+        transaction = {"Date": user_date, "Value": user_value, "Notes": "sample note"}
         self.user.store_edit_transaction(transaction, user_category)
         self.user.edit_transaction_date(edit_date)
         assert self.user.transactions["Groceries"][0]["Date"].date() == edit_date.date()
@@ -45,8 +47,9 @@ class TestAddUserRecord(BaseCase):
         edit_category = "Transport"
         user_value = 10.00
         userid = "33"
-        self.user.add_transaction(user_date, user_category, user_value, userid)
-        transaction = {"Date": user_date, "Value": user_value}
+        note = "sample note"
+        self.user.add_transaction(user_date, user_category, user_value, note, userid)
+        transaction = {"Date": user_date, "Value": user_value, "Notes": "sample note"}
         self.user.store_edit_transaction(transaction, user_category)
         self.user.edit_transaction_category(edit_category)
         assert self.user.transactions[edit_category][0] == transaction
@@ -58,8 +61,9 @@ class TestAddUserRecord(BaseCase):
         user_value = 10.00
         edit_value = 20.00
         userid = "33"
-        self.user.add_transaction(user_date, user_category, user_value, userid)
-        transaction = {"Date": user_date, "Value": user_value}
+        note = "sample note"
+        self.user.add_transaction(user_date, user_category, user_value, note, userid)
+        transaction = {"Date": user_date, "Value": user_value, "Notes": "sample note"}
         self.user.store_edit_transaction(transaction, user_category)
         self.user.edit_transaction_value(edit_value)
         assert self.user.transactions["Shopping"][0]["Value"] == edit_value
