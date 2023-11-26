@@ -474,6 +474,12 @@ def post_budget_input(message):
 
 @bot.message_handler(commands=["addMember"])
 def add_member(message):
+    """"
+   This function is the start point of addMember functionality. It receives the member name and 'get_new_member' is called.
+    :param message: telebot.types.Message object representing the message object
+    :type: object
+    :return: None
+    """
     try:
         chat_id=str(message.chat.id)
         # print(user_list)
@@ -498,6 +504,14 @@ def add_member(message):
 
 def get_new_member_name(message):
 
+    """"
+  It receives the member email id and 'get_new_member_email' is called.
+
+    :param message: telebot.types.Message object representing the message object
+    :type: object
+    :return: None
+    """
+
     try:
        chat_id=str(message.chat.id)
        memberName=message.text.strip()
@@ -521,6 +535,14 @@ def get_new_member_name(message):
 
 def get_new_member_email(message):
 
+    """"
+    It receives the member email id and the member will get added.
+
+    :param message: telebot.types.Message object representing the message object
+    :type: object
+    :return: None
+    """
+
     try:
         chat_id=str(message.chat.id)
         memberEmail = message.text.strip()
@@ -540,6 +562,15 @@ def get_new_member_email(message):
 
 @bot.message_handler(commands=["memberList"])
 def member_list(message):
+
+    """"
+    This function will get us all the member names currently in the group.
+
+    :param message: telebot.types.Message object representing the message object
+    :type: object
+    :return: None
+    """
+    
     try:
         chat_id = str(message.chat.id)
         if chat_id not in user_list.keys():
@@ -877,50 +908,28 @@ def post_members_entry(message, date_of_entry, amount_value, notes):
         logger.error(str(ex), exc_info=True)
         bot.reply_to(message, "Processing Failed - \nError : " + str(ex))
 
-
-# @bot.message_handler(content_types=["addTransactionsFromCSV"])
-# def handle_document(message):
-#     # Download the document
-#     downloaded_file = bot.download_file(message.document.file_id)
-
-#     # Save the downloaded file locally (optional)
-#     with open(message.document.file_name, 'wb') as file:
-#         file.write(downloaded_file)
-
-#     # Handle the uploaded file (e.g., add transactions from the file)
-#     add_transactions_from_file(message)
-#     # Respond to the user to confirm the file has been processed
-#     bot.reply_to(message, "Transactions added successfully.")
-
-# def add_transactions_from_file(message):
-#     file_path = message.document.file_name
-#     parsed_transactions = parse_transaction_file(file_path)
-#     user = user_list[message.chat.id]
-#     for transaction in parsed_transactions:
-#         date = transaction["Date"]
-#         category = transaction["Category"]
-#         value = transaction["Value"]
-#         user.add_transaction(date, category, value, message.chat.id)
-
-# def parse_transaction_file(file_path):
-#     transactions = []
-#     with open(file_path, 'r') as file:
-#         reader = csv.DictReader(file)
-#         for row in reader:
-#             date = row['Date']
-#             category = row['Category']
-#             value = row['Value']
-#             transactions.append({"Date": date, "Category": category, "Value": value})
-#     return transactions
-
 @bot.message_handler(commands=["addTransactionsFromCSV"])
 def handle_document(message):
+    """
+    Prompts the user to upload the CSV file in required format and calls the handle_file function to process that file.
+
+    :param message: telebot.types.Message object representing the message object
+    :type: object
+    :return: None
+    """
     bot.send_message(message.chat.id, "Please upload a CSV file. Format should be: category, date (mm-dd-yyyy), value, notes")
     chat_id = str(message.chat.id)
     print(user_list[chat_id])
     bot.register_next_step_handler(message, handle_file)
 
 def handle_file(message):
+    """
+    Receives the file and downloads it on the server. The file is then parsed and each transaction is added to user_list. The bot sends a success message or error details based on the result.
+
+    :param message: telebot.types.Message object representing the message object
+    :type: object
+    :return: None
+    """
     chat_id = str(message.chat.id)
     # print(message)
     if message.document.mime_type == 'text/csv':
@@ -931,8 +940,6 @@ def handle_file(message):
         try:
             with open(file_name, 'wb') as new_file:
                 new_file.write(downloadedfile)
-            #data should be in {'Food': [], 'Groceries': [{'Date': datetime.datetime(2023, 11, 7, 0, 0), 'Value': 23.0}], 'Utilities': [{'Date': datetime.datetime(2023, 11, 16, 0, 0), 'Value': 18.666666666666668}], 'Transport': [], 'Shopping': [], 'Miscellaneous': []} in this format
-            # Category, date, value
             categories = ['Food','Groceries','Utilities','Transport','Shopping']
             with open(file_name, 'r', encoding='utf-8') as csv_file:
                 csv_reader = csv.reader(csv_file)
@@ -954,18 +961,12 @@ def handle_file(message):
                         #if unrecognized category then appends to miscellaneous category
                         (user_list[chat_id].transactions)['Miscellaneous'].append(datevalue)
                         print("added in miscellaneous")
-                # parsed_data = '\n'.join(rows)  # Join rows with newline
-                # bot.send_message(chat_id, parsed_data)  # Send parsed data back to user
                 bot.send_message(chat_id, 'Added transations successfully') 
                 print(user_list[chat_id].transactions)
         except Exception as e:
             bot.send_message(chat_id, f"Error: {e}")
     else:
         bot.send_message(chat_id, "Please upload a valid CSV file.")
-        #transactions dict me loop laga, category se dhund in user_list[chat_id].transactions, fir datetime lib se string to the printed format convert kar, value add kar(float me daal)
-        #send_message(transactions added)
-
-        
 
 @bot.message_handler(commands=["addRecurring"])
 def command_addRecurring(message):
@@ -1509,11 +1510,12 @@ def acceptEmailId(message):
 @bot.message_handler(commands=["sendBill"])
 def send_bill(message):
     """
-    This function email the bill information to the members for the splitting function
+    This function will email the billing description to all the members after splitting the bill
 
     :param message: telebot.types.Message object representing the message object
     :type: object
     :return: None
+
     """
     try:
         chat_id = str(message.chat.id)
