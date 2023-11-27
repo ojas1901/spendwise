@@ -14,13 +14,14 @@
 [![DOI](https://zenodo.org/badge/431190543.svg)](https://zenodo.org/badge/latestdoi/431190543)
 [![Platform](https://img.shields.io/badge/Platform-Telegram-blue)](https://desktop.telegram.org/)
 [![codecov](https://codecov.io/gh/ojas1901/spendwise/graph/badge.svg?token=GOJZTYVHIH)](https://codecov.io/gh/ojas1901/spendwise)
-[![Actions Status](https://github.com/mtkumar123/MyDollarBot/workflows/CI/badge.svg)](https://github.com/mtkumar123/MyDollarBot/actions)
-![github workflow](https://github.com/mtkumar123/MyDollarBot/actions/workflows/black.yml/badge.svg)
-![Discord](https://img.shields.io/discord/879343473940107264?color=blueviolet&label=Discord%20Discussion%20Chat)
-![Lines of code](https://img.shields.io/tokei/lines/github/ojas1901/spendwise?color=9cf)
+[![CI](https://github.com/ojas1901/spendwise/actions/workflows/main.yml/badge.svg)](https://github.com/ojas1901/spendwise/actions/workflows/main.yml)
+[![Lint](https://github.com/ojas1901/spendwise/actions/workflows/black.yml/badge.svg)](https://github.com/ojas1901/spendwise/actions/workflows/black.yml)
+![Lines of code](https://img.shields.io/tokei/lines/github/ojas1901/spendwise)
 ![Version](https://img.shields.io/github/v/release/ojas1901/spendwise?color=ff69b4&label=Version)
 ![GitHub issues](https://img.shields.io/github/issues-raw/ojas1901/spendwise)
 ![GitHub closed issues](https://img.shields.io/github/issues-closed-raw/ojas1901/spendwise)
+![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/ojas1901/spendwise)
+![GitHub repo file count (file type)](https://img.shields.io/github/directory-file-count/ojas1901/spendwise)
 
 <hr>
 
@@ -325,10 +326,11 @@ This project is licensed under the terms of the MIT license. Please check [Licen
 
 <table>
   <tr>
-    <td align="center"><a href="https://github.com/nitin-dhevar/"><img src="https://avatars.githubusercontent.com/u/46418326?v=4" width="75px;" alt=""/><br /><sub><b>Nitin Dhevar</b></sub></a></td>
-    <td align="center"><a href="https://github.com/GVSPraveen113"><img src="https://avatars.githubusercontent.com/u/49156298?v=4" width="75px;" alt=""/><br /><sub><b>Venkata Sai Praveen</b></sub></a><br /></td>
-    <td align="center"><a href="https://github.com/manideepika21"><img src="https://avatars.githubusercontent.com/u/145089468?s=96&v=4" width="75px;" alt=""/><br /><sub><b>Mani Deepika</b></sub></a><br /></td>
-  </tr>
+        <td align="center"><a href="https://github.com/utsavll0"><img src="https://avatars.githubusercontent.com/utsavll0" width="100px;" alt=""/><br /><sub><b>Utsavkumar Lal</b></sub></a><br /></td>
+      <td align="center"><a href="https://github.com/neha7799"><img src="https://avatars.githubusercontent.com/neha7799" width="100px;" alt=""/><br /><sub><b>Neha Patil</b></sub></a></td>
+    <td align="center"><a href="https://github.com/ojas1901"><img src="https://avatars.githubusercontent.com/ojas1901" width="100px;" alt=""/><br /><sub><b>Ojas Kulkarni</b></sub></a><br /></td>
+      <td align="center"><a href="https://github.com/Viggy12126"><img src="https://avatars.githubusercontent.com/Viggy12126" width="100px;" alt=""/><br /><sub><b>Vighnesh Hegde</b></sub></a><br /></td>
+    </tr>
 </table>
 
 
