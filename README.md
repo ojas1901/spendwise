@@ -50,6 +50,7 @@ With simple commands, this bot allows you to:
 - Visualize your spendings in the form of graphs/pie chart using the /chart option
 - Email the history CSV file to yourself
 - See the total daily/monthly expenditure in different currencies
+- Add the income you receive from various sources and keep track of monthly income
 
 ---
 Sample demos are shown below. They are run on a local machine.
@@ -168,12 +169,12 @@ I want to increase/decrease my monthly budget.
 
 I want to add the expenses based on personal or shared category
 
-<p align="center"><img width="700" src="./docs/workflows/add.gif"></p>
+<p align="center"><img width="700" src="./docs/workflows/add_transaction.gif"></p>
 
 1. Enter the `/add` command
 2. Click on the date of the transaction
 3. Click on the category to add
-4. Give a note for the transaction to remember it better.
+4. Give a note for the transaction
 5. Type in the amount spent
 6. Type the expenditure category "Personal" or "Shared"
 7. The amount will be added to the total value
