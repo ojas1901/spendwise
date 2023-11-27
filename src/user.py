@@ -451,7 +451,7 @@ class User:
         """
         try:
             if amount != 0:
-                self.monthly_income = amount
+                self.monthly_income += amount
                 self.save_user(userid)
 
         except Exception as e:

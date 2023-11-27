@@ -410,7 +410,7 @@ def post_income_input(message):
         bot.send_message(
             chat_id,
             "The income received for this month has been set as ${}".format(
-                format(amount_value, ".2f")
+                format(user_list[chat_id].monthly_income, ".2f")
             ),
         )
 
