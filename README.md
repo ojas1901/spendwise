@@ -9,18 +9,18 @@
 <hr>
 
 ![MIT license](https://img.shields.io/badge/License-MIT-green.svg)
-![GitHub](https://img.shields.io/github/languages/top/nitin-dhevar/spendwise?color=red&label=Python&logo=Python&logoColor=yellow)
-![GitHub contributors](https://img.shields.io/github/contributors/nitin-dhevar/spendwise)
+![GitHub](https://img.shields.io/github/languages/top/ojas1901/spendwise?color=red&label=Python&logo=Python&logoColor=yellow)
+![GitHub contributors](https://img.shields.io/github/contributors/ojas1901/spendwise)
 [![DOI](https://zenodo.org/badge/431190543.svg)](https://zenodo.org/badge/latestdoi/431190543)
 [![Platform](https://img.shields.io/badge/Platform-Telegram-blue)](https://desktop.telegram.org/)
-[![codecov](https://codecov.io/gh/nitin-dhevar/spendwise/branch/main/graph/badge.svg?token=YCKWZTHO7O)](https://codecov.io/gh/nitin-dhevar/spendwise)
+[![codecov](https://codecov.io/gh/ojas1901/spendwise/graph/badge.svg?token=GOJZTYVHIH)](https://codecov.io/gh/ojas1901/spendwise)
 [![Actions Status](https://github.com/mtkumar123/MyDollarBot/workflows/CI/badge.svg)](https://github.com/mtkumar123/MyDollarBot/actions)
 ![github workflow](https://github.com/mtkumar123/MyDollarBot/actions/workflows/black.yml/badge.svg)
 ![Discord](https://img.shields.io/discord/879343473940107264?color=blueviolet&label=Discord%20Discussion%20Chat)
-![Lines of code](https://img.shields.io/tokei/lines/github/nitin-dhevar/spendwise?color=9cf)
-![Version](https://img.shields.io/github/v/release/nitin-dhevar/spendwise?color=ff69b4&label=Version)
-![GitHub issues](https://img.shields.io/github/issues-raw/nitin-dhevar/spendwise)
-![GitHub closed issues](https://img.shields.io/github/issues-closed-raw/nitin-dhevar/spendwise)
+![Lines of code](https://img.shields.io/tokei/lines/github/ojas1901/spendwise?color=9cf)
+![Version](https://img.shields.io/github/v/release/ojas1901/spendwise?color=ff69b4&label=Version)
+![GitHub issues](https://img.shields.io/github/issues-raw/ojas1901/spendwise)
+![GitHub closed issues](https://img.shields.io/github/issues-closed-raw/ojas1901/spendwise)
 
 <hr>
 
