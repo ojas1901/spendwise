@@ -297,7 +297,7 @@ def initiate_new_bill_debator(chat_id):
             if c not in temp_amount[str_chat_id]:
                 # if c != str(temp_amount[str_chat_id][2]):
                 markup.add(c)
-        markup.add("There is no more Debator.")
+        markup.add("There are no more debators")
         debator = bot.send_message(
             chat_id, "Choose a bill debator", reply_markup=markup
         )
