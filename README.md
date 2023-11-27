@@ -68,7 +68,7 @@ Sample demos are shown below. They are run on a local machine.
 - Export your transactions into a CSV file.
 - Bulk upload transactions by uploading a CSV file.
 - Transactions have a note feature now.
-- Option to add income.
+- Option to add income and track income for the month.
 
 
 <!-- [comment]: <> (## Demo) -->
@@ -173,9 +173,10 @@ I want to add the expenses based on personal or shared category
 1. Enter the `/add` command
 2. Click on the date of the transaction
 3. Click on the category to add
-4. Type in the amount spent
-5. Type the expenditure category "Personal" or "Shared"
-6. The amount will be added to the total value
+4. Give a note for the transaction to remember it better.
+5. Type in the amount spent
+6. Type the expenditure category "Personal" or "Shared"
+7. The amount will be added to the total value
 
  ### addTransactionsFromCSV
 
