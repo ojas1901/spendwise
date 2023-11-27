@@ -152,6 +152,12 @@ Now we are all done with the google speech to text api
 
 
 # :information_desk_person: Sample Demos
+### Voice Commands
+I want to use my voice to control the bot
+<p align="center"><img width="640" src="./docs/workflows/voice_commands.gif" alt=""></p>
+
+1. Hold down the mic button on the right hand side of telegram window
+2. Speak the command which you want to execute
 
 ### Budget
 
@@ -263,6 +269,13 @@ I am tired I want to listen to some jokes
 <p align="center"><img width="700" src="./docs/workflows/joke.gif"></p>
 
 1. Enter '/joke' command
+
+### Export to CSV
+I want to export all my transactions as a CSV file to use somewhere else
+
+<p align="center"><img width="640" src="./docs/workflows/export_csv_video.gif" alt=""></p>
+
+1. Use command /exportCSV
 
 ### See total Expenditure in different currencies
 
