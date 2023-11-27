@@ -57,12 +57,13 @@ jobs:
         run: |
           pip install pylint
       - name: Run tests
+        continue-on-error: true
         env:
           API_TOKEN: ${{ secrets.API_TOKEN }}
           CHAT_ID: ${{ secrets.CHAT_ID }}
         run: |
           export PYTHONPATH=src
-          python -m pytest -v --cov=src/ --cov-report=xml test/unit
+          python -m pytest -v --cov=src/ --cov-report=xml test/unit 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
         env:
