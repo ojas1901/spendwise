@@ -13,7 +13,7 @@
 ![GitHub contributors](https://img.shields.io/github/contributors/ojas1901/spendwise)
 [![DOI](https://zenodo.org/badge/431190543.svg)](https://zenodo.org/badge/latestdoi/431190543)
 [![Platform](https://img.shields.io/badge/Platform-Telegram-blue)](https://desktop.telegram.org/)
-[![codecov](https://app.codecov.io/gh/ojas1901/spendwise/tree/ojas1901-patch-1/src)](https://app.codecov.io/gh/ojas1901/spendwise)
+[![codecov](https://codecov.io/gh/ojas1901/spendwise/graph/badge.svg?token=GOJZTYVHIH)](https://codecov.io/gh/ojas1901/spendwise)
 [![Actions Status](https://github.com/mtkumar123/MyDollarBot/workflows/CI/badge.svg)](https://github.com/mtkumar123/MyDollarBot/actions)
 ![github workflow](https://github.com/mtkumar123/MyDollarBot/actions/workflows/black.yml/badge.svg)
 ![Discord](https://img.shields.io/discord/879343473940107264?color=blueviolet&label=Discord%20Discussion%20Chat)
