@@ -305,7 +305,7 @@ I want to send myself an email for the savings record
 
 # :grey_question: Documentation
 
-The Documentation of the SpendWise application API, can be viewed at [Link to Documentation](https://github.com/nitin-dhevar/spendwise/blob/main/proj2/Documentation%20SpendWise.pdf) and the Agile Project Board Status which includes the features developed and the new features that can be added to the application at [Agile Project Board Status](https://github.com/nitin-dhevar/spendwise/blob/main/proj2/AgileProjectBoardStatus.jpeg). For additional reference, refer to [Github Pages](https://mtkumar123.github.io/MyDollarBot/).
+The Documentation of the SpendWise application API, can be viewed at [Link to Documentation](https://github.com/ojas1901/spendwise/blob/main/proj2/Documentation%20SpendWise.pdf). For additional reference, refer to [Github Pages](https://mtkumar123.github.io/MyDollarBot/).
 
 # :construction: Road Map
 
