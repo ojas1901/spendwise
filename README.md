@@ -29,10 +29,28 @@
 
 https://youtu.be/cAGcWJTWelc
 
+# :star: Whats New (Release 3.0.0)
+
+### Major Changes done by Group 17 Fall 2023 for Project 3 (Delta from Project 2)
+
+- Added new feature where users can use voice commands to control the bot
+- Added new feature to create and manage groups. Members of groups can split bills among themselves now.
+- Added new feature to extract all transactions in the form of CSV file
+- Added new feature to upload transactions in bulk by uploading a CSV file.
+- Added new feature to add notes to transactions while adding them
+- Added new feature to add income and track income for the month.
+- Fixed a bug where currency conversion was hard coded. Now currecncy conversion is done in real time using APIs
+- Fixed lot of unit tests which were not running before
+- Improved repository quality by adding new meaningful badges
+- Fixed previously not working github actions
+- Streamlined development software development process by using GitFlow technique
+- Fixed an issue where Telegram running on Apple Devices would crash the app
+
 ## About Spendwise
 
-Spendwise is an easy-to-use Telegram Bot that assists you in recording your daily expenses on a local system without any hassle.  With SpendWise, users can easily record and categorize their spending, set budgets, visualize expenditure patterns, and more, all within the familiar Telegram interface.
-With simple commands, this bot allows you to:
+Spendwise is an easy-to-use Telegram Bot that assists you in recording your daily expenses on a local system without any hassle.  With SpendWise, users can easily record and categorize their spending, set budgets, visualize expenditure patterns, and more, all within the familiar Telegram interface. The new version of spendwise can now take voice inputs for commands
+ 
+With simple voice/typed-in commands, this bot allows you to:
 - Add/Record a new spending based on personal or shared expense category
 - Add/Record recurring transactions
 - Bulk-add transactions by uploading a CSV file.
@@ -59,17 +77,6 @@ Sample demos are shown below. They are run on a local machine.
 
 
 ---
-
-# :star: Whats New
-
-### Release Version 3.0.0 - Spendwise
-
-- Speech recognition for bot commands.
-- Group expense tracking.
-- Export your transactions into a CSV file.
-- Bulk upload transactions by uploading a CSV file.
-- Transactions have a note feature now.
-- Option to add income and track income for the month.
 
 
 <!-- [comment]: <> (## Demo) -->
@@ -310,21 +317,20 @@ I want to send myself an email for the savings record
 
 The Documentation of the SpendWise application API, can be viewed at [Link to Documentation](https://github.com/ojas1901/spendwise/blob/main/proj2/Documentation%20SpendWise.pdf). For additional reference, refer to [Github Pages](https://mtkumar123.github.io/MyDollarBot/).
 
-# :construction: Road Map
-
-Our ideas for new features that can be implemented to make this project better can be seen in our RoadMap project board.
-[Road Map](https://github.com/nitin-dhevar/spendwise/projects/1)
-
-
 
 :heart: Acknowledgements
 ---
 We would like to thank Dr. Timothy Menzies for helping us understand the process of building a good Software Engineering project. We would also like to thank the teaching assistants Andre Lustosa, San Gilson, Xueqi (Sherry) Yang, Yasitha Rajapaksha, Rahul Yedida for their support throughout the project.
 
+❓ Eager to Contribute:
+---
+Read the contribution policy [here](https://github.com/ojas1901/spendwise/blob/main/CONTRIBUTING.md)
+Also make sure to read development documentations provided above :)
+
 
 :page_facing_up: License
 ---
-This project is licensed under the terms of the MIT license. Please check [License](https://github.com/nitin-dhevar/spendwise/blob/main/LICENSE) for more details.
+This project is licensed under the terms of the MIT license. Please check [License](https://github.com/ojas1901/spendwise/blob/main/LICENSE) for more details.
 
 
 :sparkles: Contributors
