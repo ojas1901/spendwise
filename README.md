@@ -12,3 +12,8 @@
 - Fixed previously not working github actions
 - Streamlined development software development process by using GitFlow technique
 - Fixed an issue where Telegram running on Apple Devices would crash the app
+
+### Video
+
+https://github.com/ojas1901/spendwise/assets/122955760/83473d27-f65a-46ff-bbc5-45330c2723a7
+
