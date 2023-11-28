@@ -27,7 +27,10 @@
 
 ## Demo Video
 
-https://youtu.be/cAGcWJTWelc
+
+https://github.com/ojas1901/spendwise/assets/122955760/9ec8bc6c-ea94-4253-89b1-f46ee82085a2
+
+
 
 # :star: Whats New (Release 3.0.0)
 
