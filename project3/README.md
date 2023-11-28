@@ -1,3 +1,9 @@
+### Video
+
+https://github.com/ojas1901/spendwise/assets/36764273/e179e642-3631-41db-b729-3ad49cc1f836
+
+
+
 ### Major Changes done by Group 17 Fall 2023 for Project 3 (Delta from Project 2)
 
 - Added new feature where users can use voice commands to control the bot
