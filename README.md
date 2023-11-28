@@ -1,3 +1,7 @@
+# Group 17 Submission
+1. Grading rubric is in `project3\grading.csv` file on `main` branch
+2. Demo video is in `project3\README.md` file on `main` branch
+3. Delta from project 2 is in `releases` section, `README.md` file as well as inside `project3\README.md` folder
 
 # :money_with_wings: Spendwise
 
